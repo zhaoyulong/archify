@@ -61,6 +61,8 @@ When ambiguous, run `node bin/archify.mjs guide "<scenario>" --json`. Scenario p
 
 For an everyday subject, keep the same five modes and semantic types, then name them for the reader: use everyday `icon` values and `meta.legend` labels as in [Node icons](references/authoring-contract.md#node-icons). Ask for missing personal facts instead of inventing dates, amounts, or rules.
 
+Architecture, workflow, and data-flow nodes may add a `role` such as `operator`, `cache`, `featurestore`, `experiment`, or `stream-job`; a role picks the outline, icon and legend wording and supplies the type (`control` and `compute` join the component types). Relationships may state `evidence` (`confirmed`, `inferred`, `unverified`) with `meta.evidence` saying what each level means; nodes and relationships may carry `details` and a `link`. Use `meta.scenarios` when one system runs several configurations (bundles, markets, user groups, experiment arms): draw the union once and list what each scenario runs, never one diagram per configuration. For a config-driven DAG service, generate the diagram with `recipes/graph-engine/import.mjs`. Field contracts: [Roles, shapes, scenarios and evidence](references/authoring-contract.md#roles).
+
 ## Mermaid input
 
 Read Mermaid for topology and meaning, then author fresh Archify JSON; do not mechanically render Mermaid styling.

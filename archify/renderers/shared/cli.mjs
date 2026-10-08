@@ -20,8 +20,12 @@ import {
 } from './atomic-output.mjs';
 import { resolveLocale, translateMessage, registerLocale, SUPPORTED_LOCALES } from './i18n.mjs';
 import { prepareDiagramBrandMarks } from './brand-marks.mjs';
+import { buildExtensionData, validateExtensions } from './extensions.mjs';
 
 const outputPathGuards = new Map();
+// Extension payloads are derived from the validated diagram at load time and
+// handed to writeDiagram by output path, so no renderer has to thread them.
+const extensionPayloads = new Map();
 let renderCandidateSequence = 0;
 
 // meta.locale is renderer-owned Viewer UI, not authored content.
@@ -110,6 +114,7 @@ export function loadDiagram({ rendererDir, diagramType, defaultExample, argv = p
   validateSchema(diagramType, diagram);
   applyLocaleTranslations(diagramType, diagram);
   validateCrossCollectionContracts(diagramType, diagram);
+  validateExtensions(diagramType, diagram);
   validateEngineeringProfile(diagramType, diagram);
   const sourceEvidence = verifyRepositoryEvidence(diagramType, diagram, process.env.ARCHIFY_REPO_ROOT);
   const template = fs.readFileSync(path.join(skillRoot, 'assets/template.html'), 'utf8');
@@ -127,6 +132,7 @@ export function loadDiagram({ rendererDir, diagramType, defaultExample, argv = p
     throwOutputError(error, path.resolve(outputRequest.requestedOutput || outputRequest.authoredOutput || outputRequest.defaultOutput));
   }
   outputPathGuards.set(outPath, outputRequest);
+  extensionPayloads.set(outPath, buildExtensionData(diagramType, diagram));
   return { diagram, template, outPath, sourceEvidence };
 }
 
@@ -270,6 +276,7 @@ export function writeDiagram({ outPath, template, diagramType, meta, svg, cards,
     locale: meta.locale,
     visualPreset: meta.visual_preset || 'classic',
     sourceEvidence,
+    extensions: extensionPayloads.get(outPath) || null,
   });
   let candidatePath;
   let candidateIdentity;
@@ -319,6 +326,7 @@ export function writeDiagram({ outPath, template, diagramType, meta, svg, cards,
     throwOutputError(error, outPath);
   } finally {
     outputPathGuards.delete(outPath);
+    extensionPayloads.delete(outPath);
     if (candidateBinding) releaseRegularFileBinding(candidateBinding);
     if (candidatePath && candidateIdentity) {
       const cleanup = removeOwnedRegularFile(candidatePath, candidateIdentity);
@@ -414,6 +422,9 @@ export function animateAttr(meta, kind, step) {
 export function focusNodeAttrs(id, label, metadata = {}, locale) {
   const optional = [
     ['data-node-kind', metadata.kind],
+    ['data-node-role', metadata.role],
+    ['data-node-role-label', metadata.roleLabel],
+    ['data-node-link', metadata.link],
     ['data-node-sublabel', metadata.sublabel],
     ['data-node-tag', metadata.tag],
     ['data-node-context', metadata.context],
@@ -441,11 +452,16 @@ export function focusNodeTitle(label, metadata = {}) {
   return `<title>${esc(parts.join(' · '))}</title>`;
 }
 
-export function focusEdgeAttrs(from, to, label, key, id) {
+const EVIDENCE_ATTR_VALUES = new Set(['confirmed', 'inferred', 'unverified']);
+
+export function focusEdgeAttrs(from, to, label, key, id, extra = {}) {
+  const evidence = EVIDENCE_ATTR_VALUES.has(extra.evidence)
+    ? ` data-edge-evidence="${esc(extra.evidence)}"`
+    : '';
   const named = label ? ` data-edge-label="${esc(label)}"` : '';
   const keyed = key !== undefined && key !== null ? ` data-edge-key="${esc(String(key))}"` : '';
   const identified = id !== undefined && id !== null && String(id).trim() !== ''
     ? ` data-edge-id="${esc(String(id))}"`
     : '';
-  return `data-edge-from="${esc(from)}" data-edge-to="${esc(to)}"${named}${keyed}${identified}`;
+  return `data-edge-from="${esc(from)}" data-edge-to="${esc(to)}"${named}${keyed}${identified}${evidence}`;
 }

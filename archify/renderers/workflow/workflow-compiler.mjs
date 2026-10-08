@@ -1,5 +1,8 @@
 import { createSpatialGrid } from '../shared/spatial-grid.mjs';
 import { esc, renderDefinitions, renderSemanticSigil, textUnits } from '../shared/utils.mjs';
+import { evidenceLegendEntries } from '../shared/extensions.mjs';
+import { legendKindsWithoutRole, nodeShape, roleLegendEntries, rolePassport } from '../shared/roles.mjs';
+import { isShaped, renderNodeBody, shapeSigilOffset, shapeTextWidth } from '../shared/shapes.mjs';
 import {
   animateAttr,
   focusEdgeAttrs,
@@ -21,6 +24,8 @@ import {
   relationshipLegendObstacles,
   resolveLegend,
   renderLegend as renderResolvedLegend,
+  renderRoleSwatch,
+  renderEvidenceSwatch,
 } from '../shared/legend.mjs';
 import { availableNodeTextWidth, fittedNodeFontSize, minimumNodeTextWidth, nodeLabelLayout } from '../shared/text-fit.mjs';
 import { brandLabelFitWidth, brandMarkFor, brandMetadataFor, brandTopRailProblem, renderBrandMark } from '../shared/brand-marks.mjs';
@@ -821,13 +826,19 @@ function resolveWorkflowLegendFootprint(workflow, layout) {
     'database',
     'cloud',
     'external',
+    'control',
+    'compute',
   ].map((kind) => ({ kind, label: i18nText(workflow.meta.locale, `legend.workflow.${kind}`) }));
-  const presentLegendKinds = new Set(asArray(workflow.nodes).map((node) => node.type));
-  const workflowLegendEntries = resolveLegend(
-    workflow.meta?.legend,
-    LEGEND_CATALOG,
-    presentLegendKinds,
-  );
+  const presentLegendKinds = legendKindsWithoutRole(asArray(workflow.nodes));
+  const workflowLegendEntries = [
+    ...resolveLegend(
+      workflow.meta?.legend,
+      LEGEND_CATALOG,
+      presentLegendKinds,
+    ),
+    ...(workflow.meta?.legend?.mode === 'hidden' ? [] : roleLegendEntries(workflow, asArray(workflow.nodes))),
+    ...evidenceLegendEntries(workflow, asArray(workflow.edges)),
+  ];
   const legendFootprintOptions = { fontSize: 7, itemGap: 7 };
   const oneRowLegendFootprint = legendFootprint(workflowLegendEntries, {
     ...legendFootprintOptions,
@@ -2569,12 +2580,13 @@ function validateWorkflow() {
       continue;
     }
     const estLabelW = textUnits(node.label) * 6.8;
-    if (estLabelW > node.width + 6) {
+    const textWidth = shapeTextWidth(nodeShape(workflow, node), node.width, node.height);
+    if (estLabelW > textWidth + 6) {
       problems.push(`Label "${node.label}" (~${Math.round(estLabelW)}px) is wider than node "${node.id}" (${node.width}px) — shorten the label or increase node.width.`);
     }
     const brandRailProblem = brandTopRailProblem(node, node.width, nodeTextFit.labelMinimum);
     if (brandRailProblem) problems.push(brandRailProblem);
-    const availableTextW = availableNodeTextWidth(node.width);
+    const availableTextW = availableNodeTextWidth(textWidth);
     for (const [field, value, minimum] of [
       ['Sublabel', node.sublabel, nodeTextFit.sublabelMinimum],
       ['Tag', node.tag, nodeTextFit.tagMinimum],
@@ -4690,14 +4702,21 @@ function renderNode(node) {
   const fill = componentFill[node.type] || 'c-external';
   const accent = componentText[node.type] || 't-muted';
   const hasSub = node.sublabel != null && node.sublabel !== '';
-  const labelFontSize = fittedNodeFontSize(node.label, brandLabelFitWidth(node, node.width), nodeTextFit.labelPreferred, nodeTextFit.labelMinimum);
-  const sublabelFontSize = fittedNodeFontSize(node.sublabel, node.width, nodeTextFit.sublabelPreferred, nodeTextFit.sublabelMinimum);
-  const tagFontSize = fittedNodeFontSize(node.tag, node.width, nodeTextFit.tagPreferred, nodeTextFit.tagMinimum);
+  const shape = nodeShape(workflow, node);
+  const textWidth = shapeTextWidth(shape, node.width, node.height);
+  const labelFontSize = fittedNodeFontSize(node.label, brandLabelFitWidth(node, textWidth), nodeTextFit.labelPreferred, nodeTextFit.labelMinimum);
+  const sublabelFontSize = fittedNodeFontSize(node.sublabel, textWidth, nodeTextFit.sublabelPreferred, nodeTextFit.sublabelMinimum);
+  const tagFontSize = fittedNodeFontSize(node.tag, textWidth, nodeTextFit.tagPreferred, nodeTextFit.tagMinimum);
   const textRows = [{ text: node.label, font: labelFontSize, y: 21 }];
   if (hasSub) textRows.push({ text: node.sublabel, font: sublabelFontSize, y: 38 });
   if (node.tag) textRows.push({ text: node.tag, font: tagFontSize, y: node.height - 12 });
   const labelLayout = nodeLabelLayout({ width: node.width, height: node.height, rows: textRows,
     brand: Boolean(brandMarkFor(node)), source: Boolean(sourceEvidence?.nodes?.[node.id]?.length) });
+  // A shaped outline moves the sigil off the corner; a plain box keeps the
+  // label layout's placement.
+  const [shapeSigilX, shapeSigilY] = shapeSigilOffset(shape, node.width, node.height);
+  const sigilX = isShaped(shape) ? shapeSigilX : 6;
+  const sigilY = isShaped(shape) ? shapeSigilY : labelLayout.sigilY;
   const sub = hasSub
     ? `\n          <text data-detail="context" x="${node.cx}" y="${node.y + labelLayout.ys[1]}" class="t-muted" font-size="${sublabelFontSize}" text-anchor="middle">${esc(node.sublabel)}</text>`
     : '';
@@ -4705,12 +4724,11 @@ function renderNode(node) {
     ? `\n        <text data-detail="fine" x="${node.cx}" y="${node.y + labelLayout.ys[hasSub ? 2 : 1]}" class="${accent}" font-size="${tagFontSize}" text-anchor="middle">${esc(node.tag)}</text>`
     : '';
   const brand = renderBrandMark(node, { x: node.x + node.width - 22, y: node.y + 6 });
-  const passport = { kind: node.type, sublabel: node.sublabel, tag: node.tag, context: nodeContext(node), ...brandMetadataFor(node) };
+  const passport = { kind: node.type, sublabel: node.sublabel, tag: node.tag, context: nodeContext(node), ...brandMetadataFor(node), ...rolePassport(workflow, node) };
   return `        <g ${focusNodeAttrs(node.id, node.label, passport, workflow.meta.locale)}>
           ${focusNodeTitle(node.label, passport)}
-          <rect x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" rx="6" class="c-mask"/>
-          <rect x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" rx="6" class="${fill}"${animateAttr(workflow.meta, 'node', nodeStep(node))} stroke-width="1.5"/>
-          ${renderSemanticSigil(node.type, { icon: node.icon, x: node.x + 6, y: node.y + labelLayout.sigilY, size: labelLayout.sigilSize })}${brand ? `\n          ${brand}` : ''}
+          ${renderNodeBody({ shape, x: node.x, y: node.y, width: node.width, height: node.height, fillClass: fill, animate: animateAttr(workflow.meta, 'node', nodeStep(node)) })}
+          ${renderSemanticSigil(node.type, { icon: node.icon, x: node.x + sigilX, y: node.y + sigilY, size: labelLayout.sigilSize, role: passport.role ? (workflow.meta?.roles?.[node.role]?.sigil || node.role) : null })}${brand ? `\n          ${brand}` : ''}
           <text data-node-label=""${hasSub ? ' data-detail-anchor=""' : ''} x="${node.x + labelLayout.x}" y="${node.y + labelLayout.ys[0]}" class="t-primary" font-size="${labelFontSize}" font-weight="600" text-anchor="middle">${esc(node.label)}</text>${sub}${tag}
         </g>`;
 }
@@ -4721,7 +4739,7 @@ function renderEdgePath(edge, index) {
   const strokeWidth = edge.width || (edge.variant === 'emphasis' ? 1.8 : 1.4);
   const routing = independentAutomaticRoute(edge) ? ' data-composition-routing="workflow-v2-auto"' : '';
   const role = workflow.schema_version === 2 ? ` data-edge-role="${esc(edge.role || '')}"` : '';
-  return `        <path ${focusEdgeAttrs(edge.from, edge.to, edge.label, index, edge.id)}${routing}${role} data-composition-points="${routePointsValue(routed.points)}" d="${routed.d}" class="${cls}"${animateAttr(workflow.meta, 'edge', edgeSteps.get(edge))} stroke-width="${strokeWidth}" marker-end="url(#${marker})"/>`;
+  return `        <path ${focusEdgeAttrs(edge.from, edge.to, edge.label, index, edge.id, { evidence: edge.evidence })}${routing}${role} data-composition-points="${routePointsValue(routed.points)}" d="${routed.d}" class="${cls}"${animateAttr(workflow.meta, 'edge', edgeSteps.get(edge))} stroke-width="${strokeWidth}" marker-end="url(#${marker})"/>`;
 }
 
 function renderEdgeLabel(edge, index) {
@@ -4729,7 +4747,7 @@ function renderEdgeLabel(edge, index) {
   const routed = pathFor(edge);
   const [lx, ly] = workflowEdgeLabelPoint(edge, routed.points);
   const labelW = workflowLabelWidth(edge.label);
-  return `        <g data-detail="context" ${focusEdgeAttrs(edge.from, edge.to, edge.label, index, edge.id)}>
+  return `        <g data-detail="context" ${focusEdgeAttrs(edge.from, edge.to, edge.label, index, edge.id, { evidence: edge.evidence })}>
           <rect x="${lx - labelW / 2}" y="${ly - 10}" width="${labelW}" height="14" rx="3" class="c-mask"/>
           <text x="${lx}" y="${ly}" class="${edgeLabelAccent(edge.variant)}" font-size="8" text-anchor="middle">${esc(edge.label)}</text>
         </g>`;
@@ -4746,7 +4764,9 @@ function renderLegend() {
     entries: workflowLegendEntries,
     locale: workflow.meta.locale,
     layout: workflowLegendLayout(obstacles),
-    renderSwatch: (entry) => `<rect x="${entry.x}" y="${entry.baseline - 8}" width="14" height="9" rx="2" class="${componentFill[entry.kind] || 'c-external'}" stroke-width="1"/>`,
+    renderSwatch: (entry) => (entry.evidence ? renderEvidenceSwatch(entry) : entry.role
+      ? renderRoleSwatch(entry)
+      : `<rect x="${entry.x}" y="${entry.baseline - 8}" width="14" height="9" rx="2" class="${componentFill[entry.kind] || 'c-external'}" stroke-width="1"/>`),
   });
 }
 

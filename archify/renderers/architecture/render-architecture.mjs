@@ -4,7 +4,10 @@ import { esc, renderDefinitions, renderSemanticSigil, textUnits } from '../share
 import { animateAttr, focusEdgeAttrs, focusNodeAttrs, focusNodeTitle, loadDiagramWithBrandMarks, writeDiagram, svgAccessibleText, svgRootAttrs } from '../shared/cli.mjs';
 import { componentBox, boundaryBox, connectionPath } from '../shared/layout-report.mjs';
 import { rendererFailure, throwDiagnosticProblems } from '../shared/diagnostics.mjs';
-import { legendFootprint, relationshipLegendObstacles, resolveLegend, renderLegend as renderResolvedLegend } from '../shared/legend.mjs';
+import { legendFootprint, relationshipLegendObstacles, resolveLegend, renderLegend as renderResolvedLegend, renderRoleSwatch, renderEvidenceSwatch } from '../shared/legend.mjs';
+import { evidenceLegendEntries } from '../shared/extensions.mjs';
+import { legendKindsWithoutRole, nodeShape, roleLegendEntries, rolePassport } from '../shared/roles.mjs';
+import { renderNodeBody, shapeSigilOffset, shapeTextWidth } from '../shared/shapes.mjs';
 import { availableNodeTextWidth, fittedNodeFontSize, minimumNodeTextWidth } from '../shared/text-fit.mjs';
 import { brandLabelFitWidth, brandMetadataFor, brandTopRailProblem, renderBrandMark } from '../shared/brand-marks.mjs';
 import { minimumReadableSourceTextPx } from '../shared/desktop-readability.mjs';
@@ -83,6 +86,8 @@ const LEGEND_CATALOG = [
   'security',
   'messagebus',
   'external',
+  'control',
+  'compute',
 ].map((kind) => ({ kind, label: i18nText(arch.meta.locale, `legend.architecture.${kind}`) }));
 
 // ---- Measure components from free coordinates --------------------------------
@@ -144,11 +149,15 @@ function boundaryLabelWidth(label, fontSize) {
   return Math.max(30, textUnits(label) * fontSize * 0.6 + 10);
 }
 
-const architectureLegendEntries = resolveLegend(
-  arch.meta?.legend,
-  LEGEND_CATALOG,
-  new Set([...components.values()].map((component) => component.type)),
-);
+const architectureLegendEntries = [
+  ...resolveLegend(
+    arch.meta?.legend,
+    LEGEND_CATALOG,
+    legendKindsWithoutRole([...components.values()]),
+  ),
+  ...(arch.meta?.legend?.mode === 'hidden' ? [] : roleLegendEntries(arch, [...components.values()])),
+  ...evidenceLegendEntries(arch, asArray(arch.connections)),
+];
 
 // One source for connection label geometry: the rect the containment rule
 // measures is the rect the SVG mask draws, the auto canvas covers, the legend
@@ -457,15 +466,16 @@ function validateArchitecture() {
     if (c.x < 0 || c.y < 0 || c.x + c.width > viewBox[0] || c.y + c.height > viewBox[1]) {
       problems.push(`Component "${c.id}" falls outside the viewBox ${viewBox[0]}x${viewBox[1]} — adjust pos/size or set a larger meta.viewBox.`);
     }
+    const textWidth = shapeTextWidth(nodeShape(arch, c), c.width, c.height);
     const estLabelW = textUnits(c.label) * 6.6;
-    if (estLabelW > c.width + 8) {
+    if (estLabelW > textWidth + 8) {
       problems.push(`Label "${c.label}" (~${Math.round(estLabelW)}px) is wider than component "${c.id}" (${c.width}px) — shorten the label or widen size.`);
     }
     const brandRailProblem = brandTopRailProblem(c, c.width, 8, 'Component');
     if (brandRailProblem) problems.push(brandRailProblem);
     // sublabel and tag render as single unwrapped <text> elements; shrink-to-fit
     // handles the ordinary case, this rejects what it cannot rescue.
-    const availableTextW = availableNodeTextWidth(c.width);
+    const availableTextW = availableNodeTextWidth(textWidth);
     for (const [field, value, minimum] of [
       ['Sublabel', c.sublabel, componentTextFit.sublabelMinimum],
       ['Tag', c.tag, componentTextFit.tagMinimum],
@@ -862,7 +872,7 @@ function renderConnectionPath(conn, index) {
     : '';
   const crossover = automaticRoute
     ? ` data-composition-crossover="halo"${conn.labelAt ? '' : ' data-composition-independent="true"'}` : '';
-  const edge = `        <path ${focusEdgeAttrs(conn.from, conn.to, conn.label, index, conn.id)} data-composition-points="${routePointsValue(routed.points)}"${crossover}${authoredStraightRouteAttrs(conn, routed.points)} d="${routed.d}" class="${cls}"${animateAttr(arch.meta, 'edge', index)} stroke-width="${strokeWidth}" marker-end="url(#${marker})"/>`;
+  const edge = `        <path ${focusEdgeAttrs(conn.from, conn.to, conn.label, index, conn.id, { evidence: conn.evidence })} data-composition-points="${routePointsValue(routed.points)}"${crossover}${authoredStraightRouteAttrs(conn, routed.points)} d="${routed.d}" class="${cls}"${animateAttr(arch.meta, 'edge', index)} stroke-width="${strokeWidth}" marker-end="url(#${marker})"/>`;
   if (!automaticRoute) return edge;
   // The wrapper is presentation-only: viewer state remains on the one semantic
   // edge, while CSS can keep its preceding mask underlay at the same opacity.
@@ -872,7 +882,7 @@ function renderConnectionPath(conn, index) {
 function renderConnectionLabel(conn, index) {
   const box = connectionLabelBox(conn);
   if (!box) return '';
-  return `        <g data-detail="context" ${focusEdgeAttrs(conn.from, conn.to, conn.label, index, conn.id)}>
+  return `        <g data-detail="context" ${focusEdgeAttrs(conn.from, conn.to, conn.label, index, conn.id, { evidence: conn.evidence })}>
           <rect x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="3" class="c-mask"/>
           <text x="${box.lx}" y="${box.ly}" class="${edgeLabelAccent(conn.variant)}" font-size="8" text-anchor="middle">${esc(conn.label)}</text>
         </g>`;
@@ -882,22 +892,24 @@ function renderComponent(c) {
   const fill = componentFill[c.type] || 'c-external';
   const accent = componentText[c.type] || 't-muted';
   const cx = c.cx;
+  const shape = nodeShape(arch, c);
+  const textWidth = shapeTextWidth(shape, c.width, c.height);
+  const [sigilX, sigilY] = shapeSigilOffset(shape, c.width, c.height);
   const hasSub = c.sublabel != null && c.sublabel !== '';
   const labelY = hasSub ? c.y + c.height / 2 - 2 : c.y + c.height / 2 + 4;
   const sub = hasSub
-    ? `\n        <text data-detail="context" x="${cx}" y="${c.y + c.height / 2 + 14}" class="t-muted" font-size="${fittedNodeFontSize(c.sublabel, c.width, componentTextFit.sublabelPreferred, componentTextFit.sublabelMinimum)}" text-anchor="middle">${esc(c.sublabel)}</text>`
+    ? `\n        <text data-detail="context" x="${cx}" y="${c.y + c.height / 2 + 14}" class="t-muted" font-size="${fittedNodeFontSize(c.sublabel, textWidth, componentTextFit.sublabelPreferred, componentTextFit.sublabelMinimum)}" text-anchor="middle">${esc(c.sublabel)}</text>`
     : '';
   const tag = c.tag
-    ? `\n        <text data-detail="fine" x="${cx}" y="${c.y + c.height - 8}" class="${accent}" font-size="${fittedNodeFontSize(c.tag, c.width, componentTextFit.tagPreferred, componentTextFit.tagMinimum)}" text-anchor="middle">${esc(c.tag)}</text>`
+    ? `\n        <text data-detail="fine" x="${cx}" y="${c.y + c.height - 8}" class="${accent}" font-size="${fittedNodeFontSize(c.tag, textWidth, componentTextFit.tagPreferred, componentTextFit.tagMinimum)}" text-anchor="middle">${esc(c.tag)}</text>`
     : '';
   const brand = renderBrandMark(c, { x: c.x + c.width - 22, y: c.y + 6 });
-  const labelFontSize = fittedNodeFontSize(c.label, brandLabelFitWidth(c, c.width), 11, 8);
-  const passport = { kind: c.type, sublabel: c.sublabel, tag: c.tag, context: componentContext(c), ...brandMetadataFor(c) };
+  const labelFontSize = fittedNodeFontSize(c.label, brandLabelFitWidth(c, textWidth), 11, 8);
+  const passport = { kind: c.type, sublabel: c.sublabel, tag: c.tag, context: componentContext(c), ...brandMetadataFor(c), ...rolePassport(arch, c) };
   return `        <g ${focusNodeAttrs(c.id, c.label, passport, arch.meta.locale)}>
           ${focusNodeTitle(c.label, passport)}
-          <rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="6" class="c-mask"/>
-          <rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="6" class="${fill}"${animateAttr(arch.meta, 'node', componentSteps.get(c.id))} stroke-width="1.5"/>
-          ${renderSemanticSigil(c.type, { icon: c.icon, x: c.x + 6, y: c.y + 6 })}${brand ? `\n          ${brand}` : ''}
+          ${renderNodeBody({ shape, x: c.x, y: c.y, width: c.width, height: c.height, fillClass: fill, animate: animateAttr(arch.meta, 'node', componentSteps.get(c.id)) })}
+          ${renderSemanticSigil(c.type, { icon: c.icon, x: c.x + sigilX, y: c.y + sigilY, role: passport.role ? (arch.meta?.roles?.[c.role]?.sigil || c.role) : null })}${brand ? `\n          ${brand}` : ''}
           <text data-node-label=""${hasSub ? ' data-detail-anchor=""' : ''} x="${cx}" y="${labelY}" class="t-primary" font-size="${labelFontSize}" font-weight="600" text-anchor="middle">${esc(c.label)}</text>${sub}${tag}
         </g>`;
 }
@@ -927,7 +939,9 @@ function renderLegend() {
       unfit: arch.meta?.legend === undefined ? 'hide' : 'error',
       diagramType: 'architecture',
     },
-    renderSwatch: (entry) => `<rect x="${entry.x}" y="${entry.baseline - 9}" width="16" height="10" rx="2.5" class="${componentFill[entry.kind] || 'c-external'}" stroke-width="1"/>`,
+    renderSwatch: (entry) => (entry.evidence ? renderEvidenceSwatch(entry) : entry.role
+      ? renderRoleSwatch(entry)
+      : `<rect x="${entry.x}" y="${entry.baseline - 9}" width="16" height="10" rx="2.5" class="${componentFill[entry.kind] || 'c-external'}" stroke-width="1"/>`),
   });
 }
 

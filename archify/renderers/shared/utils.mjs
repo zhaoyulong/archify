@@ -29,7 +29,11 @@ export function renderDefinitions() {
         </defs>`;
 }
 
+import { ROLE_SIGIL_SHAPE, TONE_SIGIL_SHAPE } from './roles.mjs';
+
 const SIGIL_TONE = {
+  control: 'control',
+  compute: 'compute',
   frontend: 'frontend',
   start: 'frontend',
   backend: 'backend',
@@ -47,6 +51,7 @@ const SIGIL_TONE = {
 };
 
 const SIGIL_SHAPE = {
+  ...TONE_SIGIL_SHAPE,
   calendar: `<rect x="2" y="3.5" width="12" height="10.5" rx="2"/><path d="M5 2v3M11 2v3M2 7h12M5 10h2M9 10h2"/>`,
   clock: `<circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 2"/>`,
   person: `<circle cx="8" cy="4.5" r="2.5"/><path d="M3 14v-2a5 5 0 0 1 10 0v2"/>`,
@@ -94,14 +99,18 @@ export const SEMANTIC_SIGIL_FOOTPRINT = SEMANTIC_SIGIL_INSET + SEMANTIC_SIGIL_SI
 // so labels never sit under the badge.
 export const SOURCE_BADGE_FOOTPRINT = 38;
 
-export function renderSemanticSigil(kind, { x, y, size = SEMANTIC_SIGIL_SIZE, icon } = {}) {
+export function renderSemanticSigil(kind, { x, y, size = SEMANTIC_SIGIL_SIZE, icon, role = null } = {}) {
   if (icon === 'none') return '';
   const selected = icon ?? kind;
   const normalized = Object.hasOwn(SIGIL_SHAPE, selected) ? selected : 'neutral';
   const tone = SIGIL_TONE[kind] || 'external';
   const scale = size / 16;
-  return `<g aria-hidden="true" data-semantic-sigil="${esc(normalized)}" class="semantic-sigil s-${tone}" transform="translate(${x} ${y}) scale(${scale})">
-            ${SIGIL_SHAPE[normalized]}
+  // A role refines the icon only, and an authored icon wins over it. The
+  // tone, and therefore every color and viewer kind, still comes from the type.
+  const roleShape = role && icon == null && Object.hasOwn(ROLE_SIGIL_SHAPE, role) ? role : null;
+  const roleAttr = roleShape ? ` data-semantic-role="${esc(roleShape)}"` : '';
+  return `<g aria-hidden="true" data-semantic-sigil="${esc(normalized)}"${roleAttr} class="semantic-sigil s-${tone}" transform="translate(${x} ${y}) scale(${scale})">
+            ${roleShape ? ROLE_SIGIL_SHAPE[roleShape] : SIGIL_SHAPE[normalized]}
           </g>`;
 }
 
@@ -126,6 +135,7 @@ const CARDS_SLOT_RE = /    <!-- ARCHIFY:CARDS_SLOT_START -->[\s\S]*?    <!-- ARC
 const SUBTITLE_SLOT_RE = /^([ \t]*)<p class="subtitle">\[Subtitle description\]<\/p>[ \t]*(\r?\n)?/m;
 const SOURCE_EVIDENCE_PLACEHOLDER = '    <!-- ARCHIFY:SOURCE_EVIDENCE_DATA -->';
 const I18N_PLACEHOLDER = '    <!-- ARCHIFY:I18N_DATA -->';
+const EXTENSION_PLACEHOLDER = '    <!-- ARCHIFY:EXTENSIONS_DATA -->';
 
 function serializeScriptJson(value) {
   return JSON.stringify(value)
@@ -149,6 +159,7 @@ export function applyTemplate(template, {
   locale,
   visualPreset = 'classic',
   sourceEvidence = null,
+  extensions = null,
 }) {
   if (!SVG_SLOT_RE.test(template)) {
     throw new Error('applyTemplate: template missing ARCHIFY:SVG_SLOT sentinel');
@@ -169,6 +180,11 @@ export function applyTemplate(template, {
   // becomes mandatory only for the opt-in evidence path.
   if (sourceEvidence && !template.includes(SOURCE_EVIDENCE_PLACEHOLDER)) {
     throw new Error(`applyTemplate: repository evidence requires placeholder ${JSON.stringify(SOURCE_EVIDENCE_PLACEHOLDER)}`);
+  }
+  // Scenario, role and evidence data is only useful with the extension
+  // runtime. Refuse to drop it silently on a template that cannot show it.
+  if (extensions && !template.includes(EXTENSION_PLACEHOLDER)) {
+    throw new Error(`applyTemplate: scenarios, roles, evidence and links require placeholder ${JSON.stringify(EXTENSION_PLACEHOLDER)}`);
   }
   // Function replacers: a literal `$&`, `$'`, `$\`` or `$$` in titles, labels,
   // or rendered SVG must not be interpreted as a replacement pattern.
@@ -191,6 +207,9 @@ export function applyTemplate(template, {
     .replace(CARDS_SLOT_RE, () => cards)
     .replace(SOURCE_EVIDENCE_PLACEHOLDER, () => sourceEvidence
       ? `    <script id="archify-source-evidence-data" type="application/json">${sourceEvidenceJson}</script>`
+      : '')
+    .replace(EXTENSION_PLACEHOLDER, () => extensions
+      ? `    <script id="archify-extensions-data" type="application/json">${serializeScriptJson(extensions)}</script>`
       : '');
 }
 
