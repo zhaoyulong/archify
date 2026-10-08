@@ -58,6 +58,15 @@
         "views": {
           "$ref": "common.schema.json#/$defs/guidedViews"
         },
+        "roles": {
+          "$ref": "common.schema.json#/$defs/customRoles"
+        },
+        "scenarios": {
+          "$ref": "common.schema.json#/$defs/scenarios"
+        },
+        "evidence": {
+          "$ref": "common.schema.json#/$defs/evidenceLegend"
+        },
         "legend": {
           "type": "object",
           "additionalProperties": false,
@@ -120,7 +129,6 @@
         "additionalProperties": false,
         "required": [
           "id",
-          "type",
           "label",
           "stage",
           "row"
@@ -131,6 +139,18 @@
           },
           "type": {
             "$ref": "common.schema.json#/$defs/componentType"
+          },
+          "role": {
+            "$ref": "common.schema.json#/$defs/role"
+          },
+          "shape": {
+            "$ref": "common.schema.json#/$defs/nodeShape"
+          },
+          "link": {
+            "$ref": "common.schema.json#/$defs/link"
+          },
+          "details": {
+            "$ref": "common.schema.json#/$defs/details"
           },
           "label": {
             "type": "string",
@@ -200,6 +220,12 @@
           },
           "variant": {
             "$ref": "common.schema.json#/$defs/variant"
+          },
+          "evidence": {
+            "$ref": "common.schema.json#/$defs/evidence"
+          },
+          "details": {
+            "$ref": "common.schema.json#/$defs/details"
           },
           "route": {
             "enum": [

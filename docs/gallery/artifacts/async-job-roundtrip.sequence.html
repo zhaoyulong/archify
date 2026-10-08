@@ -207,6 +207,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --messagebus-stroke:#fb923c;
       --external-fill:    rgba(30, 41, 59, 0.5);
       --external-stroke:  #94a3b8;
+      --control-fill: rgba(6, 37, 78, 0.4);
+      --control-stroke: #669ade;
+      --compute-fill: rgba(49, 78, 6, 0.4);
+      --compute-stroke: #93d334;
 
       --toolbar-bg:       rgba(15, 23, 42, 0.8);
       --toolbar-border:   #334155;
@@ -248,6 +252,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --messagebus-stroke: #ea580c;
       --external-fill: rgba(148, 163, 184, 0.18);
       --external-stroke: #64748b;
+      --control-fill: rgba(52, 121, 211, 0.18);
+      --control-stroke: #054496;
+      --compute-fill: rgba(147, 211, 52, 0.18);
+      --compute-stroke: #5c9605;
 
       --toolbar-bg:       rgba(255, 255, 255, 0.92);
       --toolbar-border:   #cbd5e1;
@@ -287,6 +295,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --messagebus-stroke: #fdba74;
       --external-fill: rgba(71, 85, 105, 0.24);
       --external-stroke: #a5b4c7;
+      --control-fill: rgba(16, 89, 185, 0.14);
+      --control-stroke: #8ab6f0;
+      --compute-fill: rgba(117, 185, 16, 0.14);
+      --compute-stroke: #b2ea5e;
       --arrow: #7890ad;
       --arrow-emphasis: #2dd4bf;
       --toolbar-bg: rgba(7, 16, 30, 0.86);
@@ -320,6 +332,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --messagebus-stroke: #c65f27;
       --external-fill: rgba(100, 116, 139, 0.1);
       --external-stroke: #607a8c;
+      --control-fill: rgba(5, 68, 150, 0.09);
+      --control-stroke: #083c7f;
+      --compute-fill: rgba(92, 150, 5, 0.09);
+      --compute-stroke: #4f7f08;
       --arrow: #7b97aa;
       --arrow-emphasis: #0d9488;
     }
@@ -356,6 +372,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --messagebus-stroke: #ffad66;
       --external-fill: rgba(84, 119, 139, 0.18);
       --external-stroke: #a7cad9;
+      --control-fill: rgba(31, 85, 155, 0.13);
+      --control-stroke: #92b7e8;
+      --compute-fill: rgba(105, 155, 31, 0.13);
+      --compute-stroke: #b0df69;
       --arrow: #78a3b7;
       --arrow-emphasis: #64dfc1;
       --toolbar-bg: rgba(7, 28, 45, 0.92);
@@ -391,6 +411,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --messagebus-stroke: #b65120;
       --external-fill: rgba(79, 112, 128, 0.08);
       --external-stroke: #506f7e;
+      --control-fill: rgba(5, 58, 128, 0.08);
+      --control-stroke: #083775;
+      --compute-fill: rgba(79, 128, 5, 0.08);
+      --compute-stroke: #497508;
       --arrow: #6d93a5;
       --arrow-emphasis: #087f69;
       --toolbar-bg: rgba(247, 252, 254, 0.94);
@@ -433,6 +457,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --messagebus-stroke: #df946f;
       --external-fill: rgba(126, 115, 96, 0.18);
       --external-stroke: #b8ad99;
+      --control-fill: rgba(63, 93, 132, 0.16);
+      --control-stroke: #a9bad0;
+      --compute-fill: rgba(104, 132, 63, 0.16);
+      --compute-stroke: #aec28f;
       --arrow: #948978;
       --arrow-emphasis: #dd6b3d;
       --toolbar-bg: rgba(35, 31, 24, 0.92);
@@ -468,6 +496,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       --messagebus-stroke: #ad4b25;
       --external-fill: rgba(101, 91, 75, 0.09);
       --external-stroke: #746b5e;
+      --control-fill: rgba(42, 75, 119, 0.09);
+      --control-stroke: #39567b;
+      --compute-fill: rgba(88, 119, 42, 0.09);
+      --compute-stroke: #617b39;
       --arrow: #8a806f;
       --arrow-emphasis: #bb4c23;
       --toolbar-bg: rgba(251, 248, 241, 0.94);
@@ -1280,6 +1312,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .overview-map-node[data-kind="cloud"],
     .overview-map-node[data-kind="waiting"] { fill: var(--cloud-stroke); stroke: var(--cloud-stroke); }
     .overview-map-node[data-kind="messagebus"] { fill: var(--messagebus-stroke); stroke: var(--messagebus-stroke); }
+    .overview-map-node[data-kind="control"] { fill: var(--control-stroke); stroke: var(--control-stroke); }
+    .overview-map-node[data-kind="compute"] { fill: var(--compute-stroke); stroke: var(--compute-stroke); }
     .overview-map-node[data-kind="security"],
     .overview-map-node[data-kind="decision"],
     .overview-map-node[data-kind="failure"] { fill: var(--security-stroke); stroke: var(--security-stroke); }
@@ -1447,6 +1481,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .semantic-lens-kind[data-kind="cloud"],
     .semantic-lens-kind[data-kind="waiting"] { --lens-color: var(--cloud-stroke); }
     .semantic-lens-kind[data-kind="messagebus"] { --lens-color: var(--messagebus-stroke); }
+    .semantic-lens-kind[data-kind="control"] { --lens-color: var(--control-stroke); }
+    .semantic-lens-kind[data-kind="compute"] { --lens-color: var(--compute-stroke); }
     .semantic-lens-kind[data-kind="security"],
     .semantic-lens-kind[data-kind="decision"],
     .semantic-lens-kind[data-kind="failure"] { --lens-color: var(--security-stroke); }
@@ -2976,6 +3012,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         --messagebus-stroke:#ea580c;
         --external-fill:    rgba(148, 163, 184, 0.18);
         --external-stroke:  #64748b;
+        --control-fill: rgba(52, 121, 211, 0.18);
+        --control-stroke: #054496;
+        --compute-fill: rgba(147, 211, 52, 0.18);
+        --compute-stroke: #5c9605;
       }
       body { background: #ffffff !important; padding: 0; }
       .container { max-width: none; }
@@ -4005,6 +4045,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .c-cloud      { fill: var(--cloud-fill);      stroke: var(--cloud-stroke); }
     .c-security   { fill: var(--security-fill);   stroke: var(--security-stroke); }
     .c-messagebus { fill: var(--messagebus-fill); stroke: var(--messagebus-stroke); }
+    .c-control { fill: var(--control-fill); stroke: var(--control-stroke); }
+    .c-compute { fill: var(--compute-fill); stroke: var(--compute-stroke); }
     .c-external   { fill: var(--external-fill);   stroke: var(--external-stroke); }
 
     /* Text helpers */
@@ -4017,6 +4059,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .t-cloud      { fill: var(--cloud-stroke); }
     .t-security   { fill: var(--security-stroke); }
     .t-messagebus { fill: var(--messagebus-stroke); }
+    .t-control { fill: var(--control-stroke); }
+    .t-compute { fill: var(--compute-stroke); }
     .t-external   { fill: var(--external-stroke); }
 
     /* Relationship labels share the exact color token used by their path. */
@@ -4074,6 +4118,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     svg .s-cloud      { color: var(--cloud-stroke); }
     svg .s-security   { color: var(--security-stroke); }
     svg .s-messagebus { color: var(--messagebus-stroke); }
+    svg .s-control { color: var(--control-stroke); }
+    svg .s-compute { color: var(--compute-stroke); }
     svg .s-external   { color: var(--external-stroke); }
 
     /* Brand Marks are authored identity badges. Their color is contained
@@ -4867,6 +4913,122 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       .source-evidence-beacon,
       svg [data-node-id], svg [data-edge-from], svg [data-detail], svg [data-detail-anchor], svg [data-legend-hit], svg { transition: none !important; }
     }
+
+    /* ---- static semantics (exported with the SVG) ----------------
+       Viewer hit rails clone relationship paths without data-edge-from, so
+       every rule here requires it. */
+    svg path[data-edge-from][data-edge-evidence="inferred"] { stroke-dasharray: 7 4; }
+    svg path[data-edge-from][data-edge-evidence="unverified"] { stroke-dasharray: 2 5; opacity: 0.82; }
+    svg g[data-edge-from][data-edge-evidence="unverified"] text { font-style: italic; }
+
+    /* ---- reader state (never exported) --------------------------- */
+    .scenario-bar {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 14px;
+      padding: 10px 14px;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--text);
+      font-size: 12px;
+    }
+    .scenario-bar[hidden] { display: none; }
+    .scenario-bar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+    .scenario-bar-title { font-weight: 650; letter-spacing: 0.02em; color: var(--text); }
+    .scenario-bar-dim { color: var(--text-muted); }
+    .scenario-bar select,
+    .scenario-bar button {
+      font: inherit;
+      color: var(--toolbar-text);
+      background: var(--toolbar-bg);
+      border: 1px solid var(--toolbar-border);
+      border-radius: 8px;
+      padding: 4px 9px;
+      min-height: 28px;
+      max-width: 100%;
+    }
+    .scenario-bar button { cursor: pointer; }
+    .scenario-bar button:hover,
+    .scenario-bar select:hover { background: var(--toolbar-hover); }
+    .scenario-bar button:focus-visible,
+    .scenario-bar select:focus-visible { outline: 2px solid var(--backend-stroke); outline-offset: 1px; }
+    .scenario-bar button[aria-pressed="true"] {
+      border-color: var(--backend-stroke);
+      background: color-mix(in srgb, var(--backend-fill) 80%, var(--toolbar-menu-bg));
+    }
+    .scenario-bar button[data-evidence-filter][aria-pressed="false"] { opacity: 0.55; text-decoration: line-through; }
+    .scenario-bar-chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+    .scenario-note { color: var(--text-muted); line-height: 1.5; }
+    .scenario-stat { color: var(--text); line-height: 1.5; font-variant-numeric: tabular-nums; }
+    .scenario-stat b { font-weight: 650; }
+    .scenario-stat .scenario-added { color: var(--backend-stroke); font-weight: 650; }
+    .scenario-stat .scenario-removed { color: var(--security-stroke); font-weight: 650; }
+    .scenario-stat .scenario-changed { color: var(--cloud-stroke); font-weight: 650; }
+    .scenario-diff { display: grid; gap: 6px; }
+    .scenario-diff[hidden] { display: none; }
+    .scenario-diff-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+    .scenario-diff-group > span { min-width: 5em; font-weight: 650; }
+    .scenario-diff-group[data-diff="added"] > span { color: var(--backend-stroke); }
+    .scenario-diff-group[data-diff="removed"] > span { color: var(--security-stroke); }
+    .scenario-diff-group[data-diff="changed"] > span { color: var(--cloud-stroke); }
+    .scenario-diff-group button { font-size: 11px; padding: 3px 8px; min-height: 24px; text-align: left; }
+    .scenario-diff-group button small { color: var(--text-muted); font-size: inherit; }
+    .evidence-levels { display: grid; grid-template-columns: max-content 1fr; gap: 3px 12px; margin: 0; font-size: 11px; }
+    .evidence-levels[hidden] { display: none; }
+    .evidence-levels dt { display: inline-flex; align-items: center; gap: 6px; font-weight: 650; color: var(--text); }
+    .evidence-levels dd { margin: 0; color: var(--text-muted); line-height: 1.5; }
+    /* Explicit size: the page sizes every other svg to its container. */
+    .scenario-bar svg.evidence-sample { flex: none; display: inline-block; width: 28px; min-width: 28px; max-width: 28px; height: 8px; color: var(--text-muted); }
+    .scenario-bar svg.evidence-sample line { stroke: currentColor; stroke-width: 1.6; }
+    .scenario-bar button[data-evidence-filter] { display: inline-flex; align-items: center; gap: 6px; }
+    .semantic-passport-details { display: grid; gap: 4px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--panel-border); }
+    .semantic-passport-details[hidden] { display: none; }
+    .semantic-passport-details-title { font-size: 11px; font-weight: 650; color: var(--text); }
+    /* Stacked rows: a key pattern or a table name needs the full width. */
+    .semantic-passport-details dl { display: block; margin: 0; font-size: 11px; max-height: 30vh; overflow: auto; }
+    .semantic-passport-details dt { margin-top: 5px; color: var(--text-muted); font-size: 10px; letter-spacing: 0.02em; }
+    .semantic-passport-details dt:first-child { margin-top: 0; }
+    .semantic-passport-details dd { margin: 0; color: var(--text); overflow-wrap: anywhere; line-height: 1.45; }
+    .scenario-annotations { display: flex; flex-wrap: wrap; gap: 6px; max-height: 96px; overflow: auto; }
+    .scenario-annotations button { text-align: left; font-size: 11px; padding: 3px 8px; min-height: 24px; }
+    .scenario-annotations button span { color: var(--text-muted); }
+
+    .diagram-container svg [data-scenario-state="out"] { opacity: 0.12; }
+    .diagram-container svg [data-node-id][data-scenario-diff="added"] > rect:not(.c-mask),
+    .diagram-container svg [data-node-id][data-scenario-diff="added"] > [data-node-shape] {
+      stroke: var(--backend-stroke); stroke-width: 2.6;
+    }
+    .diagram-container svg [data-node-id][data-scenario-diff="removed"] { opacity: 0.6; }
+    .diagram-container svg [data-node-id][data-scenario-diff="removed"] > rect:not(.c-mask),
+    .diagram-container svg [data-node-id][data-scenario-diff="removed"] > [data-node-shape] {
+      stroke: var(--security-stroke); stroke-width: 2.2; stroke-dasharray: 5 3;
+    }
+    .diagram-container svg [data-node-id][data-scenario-diff="changed"] > rect:not(.c-mask),
+    .diagram-container svg [data-node-id][data-scenario-diff="changed"] > [data-node-shape] {
+      stroke: var(--cloud-stroke); stroke-width: 2.4;
+    }
+    .diagram-container svg [data-node-id][data-scenario-diff="same"] { opacity: 0.55; }
+    .diagram-container svg [data-edge-from][data-scenario-diff="same"] { opacity: 0.4; }
+    .diagram-container svg path[data-scenario-diff="added"] { stroke: var(--backend-stroke); }
+    .diagram-container svg path[data-scenario-diff="removed"] { stroke: var(--security-stroke); opacity: 0.6; }
+    .diagram-container svg [data-evidence-hidden] { opacity: 0.08; }
+    .diagram-container svg [data-role-dim] { opacity: 0.14; }
+    .diagram-container svg [data-legend-role] { cursor: pointer; }
+    .diagram-container svg [data-legend-role][data-role-selected] text { fill: var(--text); font-weight: 650; }
+    .diagram-container svg [data-extension-overlay="link"] { cursor: pointer; }
+    .diagram-container svg [data-extension-overlay="link"] circle { fill: var(--mask); stroke: var(--text-muted); stroke-width: 1; }
+    .diagram-container svg [data-extension-overlay="link"] path { stroke: var(--text); stroke-width: 1.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .diagram-container svg [data-extension-overlay="link"]:hover circle { stroke: var(--backend-stroke); }
+    .diagram-container svg [data-extension-overlay="annotation"] rect { fill: var(--mask); stroke: var(--panel-border); stroke-width: 0.6; }
+    .diagram-container svg [data-extension-overlay="annotation"] text { fill: var(--text-muted); font-size: 7.5px; }
+    @media (prefers-reduced-motion: no-preference) {
+      .diagram-container svg [data-node-id],
+      .diagram-container svg [data-edge-from] { transition: opacity 0.18s ease; }
+    }
+    @media print {
+      .scenario-bar { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -4983,7 +5145,30 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     </div>
 
 
-    <script id="archify-i18n-data" type="application/json">{"locale":"en","messages":{"viewer.kind.frontend":"Frontend","viewer.kind.backend":"Backend","viewer.kind.database":"Database","viewer.kind.cloud":"Cloud","viewer.kind.security":"Security","viewer.kind.messagebus":"Message bus","viewer.kind.external":"External","viewer.kind.neutral":"Neutral","viewer.kind.node":"Node","viewer.kind.start":"Start","viewer.kind.active":"Active","viewer.kind.waiting":"Waiting","viewer.kind.decision":"Decision","viewer.kind.success":"Success","viewer.kind.failure":"Failure","viewer.toolbar.actions":"Diagram actions","viewer.theme.toggle.title":"Toggle theme (T)","viewer.theme.toggle":"Toggle color theme","viewer.theme.dark":"Dark","viewer.theme.light":"Light","viewer.preset.choose.title":"Choose visual style (S cycles)","viewer.preset.choose":"Choose visual style","viewer.preset.style":"Style","viewer.preset.menu":"Visual style","viewer.preset.identity":"Visual identity","viewer.preset.cycles":"to cycle","viewer.preset.classic":"Classic","viewer.preset.classic.short":"Classic","viewer.preset.classic.hint":"Stable technical default","viewer.preset.flow":"Signal Flow","viewer.preset.flow.short":"Flow","viewer.preset.flow.hint":"Motion-forward presentation","viewer.preset.blueprint":"Blueprint","viewer.preset.blueprint.hint":"Engineering review","viewer.preset.editorial":"Editorial","viewer.preset.editorial.hint":"Publication and launch notes","viewer.preset.badge.signalFlow":"SIGNAL FLOW","viewer.preset.badge.blueprint":"BLUEPRINT / REV 01","viewer.preset.badge.editorial":"EDITORIAL / FIELD NOTE","viewer.preset.badge.editorialPlate":"ARCHIFY / PLATE 04","viewer.preset.current":"Visual style: {style}. Choose visual style","viewer.motion.live":"Live","viewer.motion.still":"Still","viewer.motion.pause":"Pause motion","viewer.motion.resume":"Resume motion","viewer.motion.reduced":"Motion paused by reduced-motion preference","viewer.motion.hidden":"Motion paused while this page is hidden","viewer.motion.yielding":"Pause motion; currently yielding to {owner}","viewer.motion.yielding.title":"Live preview enabled · yielding to {owner}","viewer.owner.route":"Route Probe","viewer.owner.lens":"Semantic Lens","viewer.owner.relationship":"Relationship Preview","viewer.owner.intent":"Intent Trace","viewer.owner.focus":"semantic focus","viewer.owner.legend":"legend preview","viewer.owner.reader":"reader interaction","viewer.present.enter":"Enter presentation stage","viewer.present.enter.title":"Presentation stage (F)","viewer.present.exit":"Exit presentation stage","viewer.present.exit.title":"Exit presentation stage (F or Escape)","viewer.present.present":"Present","viewer.present.exit.label":"Exit","viewer.export.button":"Export","viewer.export.button.title":"Export diagram (E)","viewer.export.diagram":"Export diagram","viewer.export.menu":"Export","viewer.export.subtitle":"Portable, clean outputs","viewer.export.share":"Share","viewer.export.shareCard":"Share Card","viewer.export.routeShareCard":"Route Share Card","viewer.export.reachShareCard":"Reach Share Card","viewer.export.copyDiagram":"Copy diagram","viewer.export.clipboardPng":"PNG to clipboard","viewer.export.raster":"Raster images","viewer.export.image":"Image","viewer.export.lossless":"Lossless image","viewer.export.compact":"Compact image","viewer.export.modern":"Modern image","viewer.export.vectorMotion":"Vector and motion","viewer.export.vectorMotion.heading":"Vector \u0026 motion","viewer.export.editable":"Editable vector","viewer.export.svg.auto":"SVG · Auto","viewer.export.svg.auto.hint":"Matches host theme","viewer.export.svg.light":"SVG · Light","viewer.export.svg.light.hint":"Always light","viewer.export.svg.dark":"SVG · Dark","viewer.export.svg.dark.hint":"Always dark","viewer.export.motion6s":"6s motion","viewer.export.unsupported":"Not supported by this browser","viewer.export.clipboardUnsupported":"Clipboard image write not supported by this browser","viewer.export.clipboardUnsupported.short":"Clipboard image write not supported in this browser.","viewer.export.motionUnavailable":"Motion capture unavailable in this browser","viewer.export.webmUnavailable":"WebM unavailable in this browser","viewer.export.failed":"Export failed: {message}","viewer.export.unknownVariant":"Unknown Share Card variant: {variant}","viewer.export.routeRequired":"Trace a route before exporting a Route Share Card","viewer.export.reachRequired":"Trace authored reach before exporting a Reach Share Card","viewer.export.unknown":"unknown","viewer.export.routeFailed":"Route Share Card export failed: {message}","viewer.export.reachFailed":"Reach Share Card export failed: {message}","viewer.export.copyFailed":"Copy failed: {message}","viewer.export.copiedPng":"Copied PNG to clipboard","viewer.export.downloadedRoute":"Downloaded Route Share Card","viewer.export.downloadedReach":"Downloaded Reach Share Card","viewer.export.downloadedWebm":"Downloaded WebM","viewer.export.recording":"Recording 6 seconds of motion…","viewer.export.card.routeSummary.one":"Path: {source} → {target} · {count} step","viewer.export.card.routeSummary.other":"Path: {source} → {target} · {count} steps","viewer.export.card.reachSummary":"Authored {direction} from {origin} · {nodes} · {links} · max {hops}","viewer.export.card.node.one":"{count} node","viewer.export.card.node.other":"{count} nodes","viewer.export.card.link.one":"{count} link","viewer.export.card.link.other":"{count} links","viewer.export.card.hop.one":"{count} hop","viewer.export.card.hop.other":"{count} hops","viewer.export.card.routeBadge":"ARCHIFY · ROUTE · {hops}","viewer.export.card.reachBadge":"ARCHIFY · {direction} REACH","viewer.export.direction.upstream":"Upstream","viewer.export.direction.downstream":"Downstream","viewer.export.error.canvasUnavailable":"Canvas unavailable for {label}","viewer.export.error.contextUnavailable":"2D canvas context unavailable for {label}","viewer.export.error.toBlobUnavailable":"canvas.toBlob unavailable for {label}","viewer.export.error.toBlobNull":"canvas.toBlob returned no data for {label}","viewer.export.error.variantsCombined":"Share Card variants cannot be combined","viewer.export.error.viewerState":"Share Card export could not remove temporary viewer state","viewer.export.error.routeState":"Route Card export could not preserve the resolved route safely","viewer.export.error.reachState":"Reach Card export could not preserve authored reach safely","viewer.export.error.webmRequirements":"WebM motion export requires a trace animation and browser MediaRecorder support","viewer.export.error.mediaRecorder":"MediaRecorder failed","viewer.export.error.emptyWebm":"MediaRecorder produced an empty WebM","viewer.export.error.webmBackground":"SVG background could not be loaded for WebM export","viewer.guide.title":"Explore this system","viewer.focus.selectedNodes":"{count} selected nodes","viewer.guide.eyebrow":"Diagram guide","viewer.guide.close":"Close diagram guide","viewer.guide.inspecting":"Inspecting compiled semantics","viewer.guide.actions":"Diagram exploration actions","viewer.guide.find":"Find any node","viewer.guide.find.hint":"Search labels, responsibilities, kinds, and stable IDs.","viewer.guide.route":"Trace a route","viewer.guide.route.aria":"Trace a directed route","viewer.guide.route.hint":"Ask how two semantic nodes connect in authored direction.","viewer.guide.map":"See the whole system","viewer.guide.map.hint":"Open Semantic Radar with a live viewport and stable nodes.","viewer.guide.lens":"Compare semantic kinds","viewer.guide.lens.hint":"Count roles, reveal their traffic, and compare direct authored links.","viewer.guide.present":"Enter Presentation Stage","viewer.guide.present.hint":"Give the live diagram the viewport without changing export.","viewer.guide.shortcuts":"Additional keyboard shortcuts","viewer.guide.shortcut.export":"Export","viewer.guide.shortcut.theme":"Theme","viewer.guide.shortcut.style":"Style","viewer.guide.shortcut.reset":"Reset","viewer.guide.shortcut.zoomIn":"Zoom in","viewer.guide.shortcut.zoomOut":"Zoom out","viewer.guide.shortcut.close":"Close","viewer.guide.facts":"{nodes} · {relationships}","viewer.guide.fact.node.one":"{count} semantic node","viewer.guide.fact.node.other":"{count} semantic nodes","viewer.guide.fact.relationship.one":"{count} relationship","viewer.guide.fact.relationship.other":"{count} relationships","viewer.guide.open":"Open diagram guide","viewer.finder.title":"Find a node","viewer.finder.close":"Close node finder","viewer.finder.placeholder":"Search labels or IDs","viewer.finder.search":"Search diagram nodes","viewer.finder.results":"Diagram nodes","viewer.finder.empty":"No matching nodes","viewer.finder.result.focus":"Focus {label}","viewer.finder.result.routeStart":"Choose {label} as route start","viewer.finder.result.routeTarget":"Choose {label} as route destination, {links}","viewer.finder.status.empty":"No matching nodes","viewer.finder.status.count.one":"{count} matching node","viewer.finder.status.count.other":"{count} matching nodes","viewer.finder.noun.nodes":"nodes","viewer.finder.link.one":"{count} link","viewer.finder.link.other":"{count} links","viewer.finder.result.focus.one":"Focus {label}, {count} related connection","viewer.finder.result.focus.other":"Focus {label}, {count} related connections","viewer.finder.status.filtered":"{visible} of {available} {noun}","viewer.finder.status.all":"{available} {noun}","viewer.passport.eyebrow":"Semantic passport","viewer.passport.metadata":"Node metadata","viewer.passport.evidence":"Verified source evidence","viewer.passport.verified":"Verified source","viewer.passport.verificationScope":"Verified against local Git at the pinned revision. Remote access has not been checked.","viewer.passport.reach":"Authored reach","viewer.passport.reach.trace":"Trace authored reachability","viewer.passport.upstream":"Upstream","viewer.passport.downstream":"Downstream","viewer.passport.upstream.trace":"Trace upstream authored reachability","viewer.passport.downstream.trace":"Trace downstream authored reachability","viewer.passport.close":"Close semantic passport","viewer.passport.move":"Move semantic passport. Drag, use arrow keys, or press Home to reset.","viewer.passport.copy":"Copy link","viewer.passport.copy.focus":"Copy link to focused node","viewer.passport.relations":"Relations","viewer.passport.relations.show":"Show connected relationships","viewer.passport.relations.hide":"Hide connected relationships","viewer.passport.relations.list":"Connected relationships","viewer.passport.copyRelation":"Copy relation","viewer.passport.copyNode":"Copy node","viewer.passport.copyPinned":"Copy link to pinned relationship","viewer.passport.copySource":"Copy link to source node","viewer.passport.copy.focused.success":"Focused node link copied","viewer.passport.copy.pinned.success":"Pinned relationship link copied","viewer.passport.copy.focused.failed":"Could not copy focused node link","viewer.passport.copy.pinned.failed":"Could not copy pinned relationship link","viewer.passport.relationship.none":"No connected relationships","viewer.passport.relationship.count.one":"{count} relation","viewer.passport.relationship.count.other":"{count} relations","viewer.passport.relationship.show.one":"Show {count} connected relationship","viewer.passport.relationship.show.other":"Show {count} connected relationships","viewer.passport.relationship.summary":"{out} outgoing · {in} incoming{loops}","viewer.passport.relationship.loops":" · {count} loop","viewer.passport.relationship.explorer":"Direct relationship explorer","viewer.passport.relationship.help":"Use arrow keys to explore relationships. Press Enter or Space to pin details; Escape clears.","viewer.passport.relationship.loopsBack":"loops back","viewer.passport.relationship.connectsTo":"connects to","viewer.passport.relationship.connectsFrom":"connects from","viewer.passport.relationship.pinned":"Pinned relationship · {from} → {to} · {label}","viewer.passport.relationship.inspect":"Inspect relationship {index} of {total}: {from} to {to}, {label}. Press Enter for details.","viewer.passport.relationship.group.out":"Outgoing","viewer.passport.relationship.group.in":"Incoming","viewer.passport.relationship.group.loop":"Self loops","viewer.passport.relationship.row":"{group}: {relationship}, {neighbor}","viewer.passport.relationship.direction.out":"OUT →","viewer.passport.relationship.direction.in":"← IN","viewer.passport.relationship.direction.loop":"LOOP","viewer.passport.sourceCount.one":"{count} verified source reference","viewer.passport.sourceCount.other":"{count} verified source references","viewer.passport.sourceMarker":"SRC","viewer.passport.beacon.one":"{count} verified source; focus this node to inspect","viewer.passport.beacon.other":"{count} verified sources; focus this node to inspect","viewer.passport.repository.open":"Open verified repository revision {revision}","viewer.passport.source.open":"Open verified source {path} at revision {revision}","viewer.passport.source.openLink":"Open ↗","viewer.passport.reach.upstream.one":"Trace {count} upstream authored node","viewer.passport.reach.upstream.other":"Trace {count} upstream authored nodes","viewer.passport.reach.downstream.one":"Trace {count} downstream authored node","viewer.passport.reach.downstream.other":"Trace {count} downstream authored nodes","viewer.passport.reach.noUpstream":"No upstream authored nodes","viewer.passport.reach.noDownstream":"No downstream authored nodes","viewer.passport.reach.status":"{direction} · {nodes} nodes · {links} links · max {hops} hops","viewer.route.eyebrow":"Path","viewer.route.start":"Click where the path starts","viewer.route.start.find":"Find start","viewer.route.start.find.aria":"Find a route start","viewer.route.copy":"Copy link","viewer.route.copy.aria":"Copy link to traced route","viewer.route.clear":"Clear","viewer.route.clear.aria":"Clear route probe","viewer.route.traced":"Path","viewer.route.pickTwo":"Click two nodes on the diagram","viewer.route.pickOne":"Click a node on the diagram","viewer.route.controls":"Route journey controls","viewer.route.previous":"Previous route position","viewer.route.play":"Play route journey","viewer.route.pause":"Pause route journey","viewer.route.replay":"Replay route journey","viewer.route.next":"Next route position","viewer.route.journey":"Journey","viewer.route.pause.label":"Pause","viewer.route.replay.label":"Replay","viewer.route.overview":"Overview","viewer.route.overview.aria":"Show complete route overview","viewer.route.instructions":"Click a start, then an end. Paths follow the arrows.","viewer.route.destination":"Where does the path from {label} end?","viewer.route.destination.find":"Find target","viewer.route.destination.find.aria":"Find a reachable route destination","viewer.route.differentDestination":"Choose a different destination","viewer.route.distinct":"Pick two different nodes.","viewer.route.unreachable":"Cannot reach {label} from here","viewer.route.unreachable.detail":"{target} cannot be reached from {source} along the arrows. Pick a highlighted node.","viewer.route.start.instructions":"Next, pick the end. Only nodes you can reach will light up.","viewer.route.copy.success":"Traced route link copied","viewer.route.copy.failed":"Could not copy traced route link","viewer.route.position":"Route position {index} of {total}: {label}","viewer.route.step":"Step {index} of {total} · {phase} · {label}","viewer.route.motionRequired":"Automatic journey requires Live motion","viewer.route.trigger.clear":"Clear traced route","viewer.route.overview.status":"{nodes} · {hops} · shortest path","viewer.route.overview.node.one":"{count} node","viewer.route.overview.node.other":"{count} nodes","viewer.route.overview.hop.one":"{count} step","viewer.route.overview.hop.other":"{count} steps","viewer.route.phase.playing":"Playing","viewer.route.phase.complete":"Complete","viewer.route.phase.inspecting":"Inspecting","viewer.route.destination.count.one":"{count} reachable node is highlighted. Click it.","viewer.route.destination.count.other":"{count} reachable nodes are highlighted. Click one.","viewer.route.noOutgoing":"No arrows lead out of this node. Clear it and pick another start.","viewer.route.result.title":"{source} to {target}","viewer.route.finder.source.title":"Choose route start","viewer.route.finder.source.placeholder":"Search route sources","viewer.route.finder.source.empty":"No matching route sources","viewer.route.finder.source.results":"Nodes that can start a route","viewer.route.finder.source.noun":"route sources","viewer.route.finder.source.badge":"start","viewer.route.finder.target.title":"Destination from {label}","viewer.route.finder.target.placeholder":"Search reachable destinations","viewer.route.finder.target.empty":"No matching reachable destinations","viewer.route.finder.target.results":"Reachable route destinations","viewer.route.finder.target.noun":"reachable destinations","viewer.route.hop.one":"{count} hop","viewer.route.hop.other":"{count} hops","viewer.lens.eyebrow":"Semantic lens","viewer.lens.title":"Compare system roles","viewer.lens.close":"Close semantic lens","viewer.lens.instruction":"Choose up to two semantic kinds. One reveals its real traffic; two compare only direct authored relationships.","viewer.lens.kinds":"Semantic kinds","viewer.lens.choose":"Choose a kind to inspect its nodes and touching relationships.","viewer.lens.copy":"Copy link to semantic lens","viewer.lens.clear":"Clear semantic lens","viewer.lens.open":"Open semantic lens","viewer.lens.openActive":"Open active semantic lens","viewer.lens.legend":"Semantic legend","viewer.lens.legend.inspect.one":"Inspect {label}, {count} node","viewer.lens.legend.inspect.other":"Inspect {label}, {count} nodes","viewer.lens.kind.count.one":"{label}, {count} node","viewer.lens.kind.count.other":"{label}, {count} nodes","viewer.lens.compare.one":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationship","viewer.lens.compare.other":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationships","viewer.lens.single":"{nodes} · {relationships} · connected peers remain visible","viewer.lens.node.one":"{count} {label} node","viewer.lens.node.other":"{count} {label} nodes","viewer.lens.relationship.one":"{count} touching relationship","viewer.lens.relationship.other":"{count} touching relationships","viewer.radar.title":"Semantic radar","viewer.radar.building":"Building overview","viewer.radar.openFull":"Open full semantic radar","viewer.radar.open":"Open radar","viewer.radar.close":"Close semantic radar","viewer.radar.surface":"Diagram overview. Click a node to focus it, or use arrow keys to pan.","viewer.radar.click":"Click node","viewer.radar.drag":"Drag to pan","viewer.radar.space":"Semantic radar needs more MAP space.","viewer.radar.nodes":"Semantic diagram radar nodes","viewer.radar.focus":"Focus {label} from Semantic Radar","viewer.radar.status":"{count} nodes · {viewport}","viewer.radar.fullMap":"{count} nodes · full map","viewer.radar.compacted":"Radar compacted to avoid covering the Semantic Passport or MAP controls.","viewer.radar.cancelWaiting":"Cancel semantic radar waiting for more MAP space","viewer.radar.needsSpace":"Semantic radar needs more visible MAP space","viewer.radar.viewport.full":"full map","viewer.radar.viewport.width":"{percent}% width","viewer.radar.viewport.scale":"{percent}% viewport","viewer.nav.controls":"Diagram view controls","viewer.nav.route":"Trace a directed route","viewer.nav.route.title":"Trace route (R)","viewer.nav.route.short":"PATH","viewer.nav.radar":"Open semantic radar","viewer.nav.radar.title":"Semantic radar (M)","viewer.nav.radar.short":"MAP","viewer.nav.lens":"Open semantic lens","viewer.nav.lens.title":"Semantic lens (L)","viewer.nav.lens.short":"LENS","viewer.nav.find":"Find a node","viewer.nav.find.title":"Find a node (/)","viewer.outline.title":"Node index","viewer.rail.show":"Notes \u0026 index","viewer.rail.controls":"Side panel","viewer.rail.collapse":"Collapse side panel","viewer.rail.bottom":"Move panel below the diagram","viewer.rail.right":"Move panel beside the diagram","viewer.nav.guide":"Open diagram guide","viewer.nav.guide.title":"Diagram guide (?)","viewer.nav.zoomOut":"Zoom out","viewer.nav.zoomOut.title":"Zoom out (-)","viewer.nav.reset":"Reset diagram view","viewer.nav.reset.title":"Reset view (0)","viewer.nav.read":"READ","viewer.nav.zoomIn":"Zoom in","viewer.nav.zoomIn.title":"Zoom in (+)","viewer.nav.camera":"{hint}. Reset diagram view","viewer.nav.camera.title":"{semantic}{hint} · reset view (0)","viewer.nav.camera.semantic":"Semantic camera active · ","viewer.nav.level.map":"MAP","viewer.nav.level.read":"READ","viewer.nav.level.full":"FULL","viewer.nav.level.auto":"AUTO","viewer.nav.detail.map":"Zoom in to reveal relationship labels and node context","viewer.nav.detail.read":"Zoom in again to reveal tags and annotations","viewer.nav.detail.full":"Full diagram detail","viewer.intent.summary":"{label}. {out} outgoing, {in} incoming{loops}. {total} connections. Press Enter for details.","viewer.intent.loops":", {count} self loop","viewer.common.copied":"Copied","viewer.common.copyFailed":"Copy failed","viewer.common.copyLink":"Copy link","viewer.common.clear":"Clear","viewer.common.close":"Close"}}</script>
+    <script id="archify-i18n-data" type="application/json">{"locale":"en","messages":{"viewer.kind.frontend":"Frontend","viewer.kind.backend":"Backend","viewer.kind.database":"Database","viewer.kind.cloud":"Cloud","viewer.kind.security":"Security","viewer.kind.messagebus":"Message bus","viewer.kind.external":"External","viewer.kind.control":"Control","viewer.kind.compute":"Compute","viewer.kind.neutral":"Neutral","viewer.kind.node":"Node","viewer.kind.start":"Start","viewer.kind.active":"Active","viewer.kind.waiting":"Waiting","viewer.kind.decision":"Decision","viewer.kind.success":"Success","viewer.kind.failure":"Failure","viewer.toolbar.actions":"Diagram actions","viewer.theme.toggle.title":"Toggle theme (T)","viewer.theme.toggle":"Toggle color theme","viewer.theme.dark":"Dark","viewer.theme.light":"Light","viewer.preset.choose.title":"Choose visual style (S cycles)","viewer.preset.choose":"Choose visual style","viewer.preset.style":"Style","viewer.preset.menu":"Visual style","viewer.preset.identity":"Visual identity","viewer.preset.cycles":"to cycle","viewer.preset.classic":"Classic","viewer.preset.classic.short":"Classic","viewer.preset.classic.hint":"Stable technical default","viewer.preset.flow":"Signal Flow","viewer.preset.flow.short":"Flow","viewer.preset.flow.hint":"Motion-forward presentation","viewer.preset.blueprint":"Blueprint","viewer.preset.blueprint.hint":"Engineering review","viewer.preset.editorial":"Editorial","viewer.preset.editorial.hint":"Publication and launch notes","viewer.preset.badge.signalFlow":"SIGNAL FLOW","viewer.preset.badge.blueprint":"BLUEPRINT / REV 01","viewer.preset.badge.editorial":"EDITORIAL / FIELD NOTE","viewer.preset.badge.editorialPlate":"ARCHIFY / PLATE 04","viewer.preset.current":"Visual style: {style}. Choose visual style","viewer.motion.live":"Live","viewer.motion.still":"Still","viewer.motion.pause":"Pause motion","viewer.motion.resume":"Resume motion","viewer.motion.reduced":"Motion paused by reduced-motion preference","viewer.motion.hidden":"Motion paused while this page is hidden","viewer.motion.yielding":"Pause motion; currently yielding to {owner}","viewer.motion.yielding.title":"Live preview enabled · yielding to {owner}","viewer.owner.route":"Route Probe","viewer.owner.lens":"Semantic Lens","viewer.owner.relationship":"Relationship Preview","viewer.owner.intent":"Intent Trace","viewer.owner.focus":"semantic focus","viewer.owner.legend":"legend preview","viewer.owner.reader":"reader interaction","viewer.present.enter":"Enter presentation stage","viewer.present.enter.title":"Presentation stage (F)","viewer.present.exit":"Exit presentation stage","viewer.present.exit.title":"Exit presentation stage (F or Escape)","viewer.present.present":"Present","viewer.present.exit.label":"Exit","viewer.export.button":"Export","viewer.export.button.title":"Export diagram (E)","viewer.export.diagram":"Export diagram","viewer.export.menu":"Export","viewer.export.subtitle":"Portable, clean outputs","viewer.export.share":"Share","viewer.export.shareCard":"Share Card","viewer.export.routeShareCard":"Route Share Card","viewer.export.reachShareCard":"Reach Share Card","viewer.export.copyDiagram":"Copy diagram","viewer.export.clipboardPng":"PNG to clipboard","viewer.export.raster":"Raster images","viewer.export.image":"Image","viewer.export.lossless":"Lossless image","viewer.export.compact":"Compact image","viewer.export.modern":"Modern image","viewer.export.vectorMotion":"Vector and motion","viewer.export.vectorMotion.heading":"Vector \u0026 motion","viewer.export.editable":"Editable vector","viewer.export.svg.auto":"SVG · Auto","viewer.export.svg.auto.hint":"Matches host theme","viewer.export.svg.light":"SVG · Light","viewer.export.svg.light.hint":"Always light","viewer.export.svg.dark":"SVG · Dark","viewer.export.svg.dark.hint":"Always dark","viewer.export.motion6s":"6s motion","viewer.export.unsupported":"Not supported by this browser","viewer.export.clipboardUnsupported":"Clipboard image write not supported by this browser","viewer.export.clipboardUnsupported.short":"Clipboard image write not supported in this browser.","viewer.export.motionUnavailable":"Motion capture unavailable in this browser","viewer.export.webmUnavailable":"WebM unavailable in this browser","viewer.export.failed":"Export failed: {message}","viewer.export.unknownVariant":"Unknown Share Card variant: {variant}","viewer.export.routeRequired":"Trace a route before exporting a Route Share Card","viewer.export.reachRequired":"Trace authored reach before exporting a Reach Share Card","viewer.export.unknown":"unknown","viewer.export.routeFailed":"Route Share Card export failed: {message}","viewer.export.reachFailed":"Reach Share Card export failed: {message}","viewer.export.copyFailed":"Copy failed: {message}","viewer.export.copiedPng":"Copied PNG to clipboard","viewer.export.downloadedRoute":"Downloaded Route Share Card","viewer.export.downloadedReach":"Downloaded Reach Share Card","viewer.export.downloadedWebm":"Downloaded WebM","viewer.export.recording":"Recording 6 seconds of motion…","viewer.export.card.routeSummary.one":"Path: {source} → {target} · {count} step","viewer.export.card.routeSummary.other":"Path: {source} → {target} · {count} steps","viewer.export.card.reachSummary":"Authored {direction} from {origin} · {nodes} · {links} · max {hops}","viewer.export.card.node.one":"{count} node","viewer.export.card.node.other":"{count} nodes","viewer.export.card.link.one":"{count} link","viewer.export.card.link.other":"{count} links","viewer.export.card.hop.one":"{count} hop","viewer.export.card.hop.other":"{count} hops","viewer.export.card.routeBadge":"ARCHIFY · ROUTE · {hops}","viewer.export.card.reachBadge":"ARCHIFY · {direction} REACH","viewer.export.direction.upstream":"Upstream","viewer.export.direction.downstream":"Downstream","viewer.export.error.canvasUnavailable":"Canvas unavailable for {label}","viewer.export.error.contextUnavailable":"2D canvas context unavailable for {label}","viewer.export.error.toBlobUnavailable":"canvas.toBlob unavailable for {label}","viewer.export.error.toBlobNull":"canvas.toBlob returned no data for {label}","viewer.export.error.variantsCombined":"Share Card variants cannot be combined","viewer.export.error.viewerState":"Share Card export could not remove temporary viewer state","viewer.export.error.routeState":"Route Card export could not preserve the resolved route safely","viewer.export.error.reachState":"Reach Card export could not preserve authored reach safely","viewer.export.error.webmRequirements":"WebM motion export requires a trace animation and browser MediaRecorder support","viewer.export.error.mediaRecorder":"MediaRecorder failed","viewer.export.error.emptyWebm":"MediaRecorder produced an empty WebM","viewer.export.error.webmBackground":"SVG background could not be loaded for WebM export","viewer.guide.title":"Explore this system","viewer.focus.selectedNodes":"{count} selected nodes","viewer.guide.eyebrow":"Diagram guide","viewer.guide.close":"Close diagram guide","viewer.guide.inspecting":"Inspecting compiled semantics","viewer.guide.actions":"Diagram exploration actions","viewer.guide.find":"Find any node","viewer.guide.find.hint":"Search labels, responsibilities, kinds, and stable IDs.","viewer.guide.route":"Trace a route","viewer.guide.route.aria":"Trace a directed route","viewer.guide.route.hint":"Ask how two semantic nodes connect in authored direction.","viewer.guide.map":"See the whole system","viewer.guide.map.hint":"Open Semantic Radar with a live viewport and stable nodes.","viewer.guide.lens":"Compare semantic kinds","viewer.guide.lens.hint":"Count roles, reveal their traffic, and compare direct authored links.","viewer.guide.present":"Enter Presentation Stage","viewer.guide.present.hint":"Give the live diagram the viewport without changing export.","viewer.guide.shortcuts":"Additional keyboard shortcuts","viewer.guide.shortcut.export":"Export","viewer.guide.shortcut.theme":"Theme","viewer.guide.shortcut.style":"Style","viewer.guide.shortcut.reset":"Reset","viewer.guide.shortcut.zoomIn":"Zoom in","viewer.guide.shortcut.zoomOut":"Zoom out","viewer.guide.shortcut.close":"Close","viewer.guide.facts":"{nodes} · {relationships}","viewer.guide.fact.node.one":"{count} semantic node","viewer.guide.fact.node.other":"{count} semantic nodes","viewer.guide.fact.relationship.one":"{count} relationship","viewer.guide.fact.relationship.other":"{count} relationships","viewer.guide.open":"Open diagram guide","viewer.finder.title":"Find a node","viewer.finder.close":"Close node finder","viewer.finder.placeholder":"Search labels or IDs","viewer.finder.search":"Search diagram nodes","viewer.finder.results":"Diagram nodes","viewer.finder.empty":"No matching nodes","viewer.finder.result.focus":"Focus {label}","viewer.finder.result.routeStart":"Choose {label} as route start","viewer.finder.result.routeTarget":"Choose {label} as route destination, {links}","viewer.finder.status.empty":"No matching nodes","viewer.finder.status.count.one":"{count} matching node","viewer.finder.status.count.other":"{count} matching nodes","viewer.finder.noun.nodes":"nodes","viewer.finder.link.one":"{count} link","viewer.finder.link.other":"{count} links","viewer.finder.result.focus.one":"Focus {label}, {count} related connection","viewer.finder.result.focus.other":"Focus {label}, {count} related connections","viewer.finder.status.filtered":"{visible} of {available} {noun}","viewer.finder.status.all":"{available} {noun}","viewer.passport.eyebrow":"Semantic passport","viewer.passport.metadata":"Node metadata","viewer.passport.evidence":"Verified source evidence","viewer.passport.verified":"Verified source","viewer.passport.verificationScope":"Verified against local Git at the pinned revision. Remote access has not been checked.","viewer.passport.reach":"Authored reach","viewer.passport.reach.trace":"Trace authored reachability","viewer.passport.upstream":"Upstream","viewer.passport.downstream":"Downstream","viewer.passport.upstream.trace":"Trace upstream authored reachability","viewer.passport.downstream.trace":"Trace downstream authored reachability","viewer.passport.close":"Close semantic passport","viewer.passport.move":"Move semantic passport. Drag, use arrow keys, or press Home to reset.","viewer.passport.copy":"Copy link","viewer.passport.copy.focus":"Copy link to focused node","viewer.passport.relations":"Relations","viewer.passport.relations.show":"Show connected relationships","viewer.passport.relations.hide":"Hide connected relationships","viewer.passport.relations.list":"Connected relationships","viewer.passport.copyRelation":"Copy relation","viewer.passport.copyNode":"Copy node","viewer.passport.copyPinned":"Copy link to pinned relationship","viewer.passport.copySource":"Copy link to source node","viewer.passport.copy.focused.success":"Focused node link copied","viewer.passport.copy.pinned.success":"Pinned relationship link copied","viewer.passport.copy.focused.failed":"Could not copy focused node link","viewer.passport.copy.pinned.failed":"Could not copy pinned relationship link","viewer.passport.relationship.none":"No connected relationships","viewer.passport.relationship.count.one":"{count} relation","viewer.passport.relationship.count.other":"{count} relations","viewer.passport.relationship.show.one":"Show {count} connected relationship","viewer.passport.relationship.show.other":"Show {count} connected relationships","viewer.passport.relationship.summary":"{out} outgoing · {in} incoming{loops}","viewer.passport.relationship.loops":" · {count} loop","viewer.passport.relationship.explorer":"Direct relationship explorer","viewer.passport.relationship.help":"Use arrow keys to explore relationships. Press Enter or Space to pin details; Escape clears.","viewer.passport.relationship.loopsBack":"loops back","viewer.passport.relationship.connectsTo":"connects to","viewer.passport.relationship.connectsFrom":"connects from","viewer.passport.relationship.pinned":"Pinned relationship · {from} → {to} · {label}","viewer.passport.relationship.inspect":"Inspect relationship {index} of {total}: {from} to {to}, {label}. Press Enter for details.","viewer.passport.relationship.group.out":"Outgoing","viewer.passport.relationship.group.in":"Incoming","viewer.passport.relationship.group.loop":"Self loops","viewer.passport.relationship.row":"{group}: {relationship}, {neighbor}","viewer.passport.relationship.direction.out":"OUT →","viewer.passport.relationship.direction.in":"← IN","viewer.passport.relationship.direction.loop":"LOOP","viewer.passport.sourceCount.one":"{count} verified source reference","viewer.passport.sourceCount.other":"{count} verified source references","viewer.passport.sourceMarker":"SRC","viewer.passport.beacon.one":"{count} verified source; focus this node to inspect","viewer.passport.beacon.other":"{count} verified sources; focus this node to inspect","viewer.passport.repository.open":"Open verified repository revision {revision}","viewer.passport.source.open":"Open verified source {path} at revision {revision}","viewer.passport.source.openLink":"Open ↗","viewer.passport.reach.upstream.one":"Trace {count} upstream authored node","viewer.passport.reach.upstream.other":"Trace {count} upstream authored nodes","viewer.passport.reach.downstream.one":"Trace {count} downstream authored node","viewer.passport.reach.downstream.other":"Trace {count} downstream authored nodes","viewer.passport.reach.noUpstream":"No upstream authored nodes","viewer.passport.reach.noDownstream":"No downstream authored nodes","viewer.passport.reach.status":"{direction} · {nodes} nodes · {links} links · max {hops} hops","viewer.route.eyebrow":"Path","viewer.route.start":"Click where the path starts","viewer.route.start.find":"Find start","viewer.route.start.find.aria":"Find a route start","viewer.route.copy":"Copy link","viewer.route.copy.aria":"Copy link to traced route","viewer.route.clear":"Clear","viewer.route.clear.aria":"Clear route probe","viewer.route.traced":"Path","viewer.route.pickTwo":"Click two nodes on the diagram","viewer.route.pickOne":"Click a node on the diagram","viewer.route.controls":"Route journey controls","viewer.route.previous":"Previous route position","viewer.route.play":"Play route journey","viewer.route.pause":"Pause route journey","viewer.route.replay":"Replay route journey","viewer.route.next":"Next route position","viewer.route.journey":"Journey","viewer.route.pause.label":"Pause","viewer.route.replay.label":"Replay","viewer.route.overview":"Overview","viewer.route.overview.aria":"Show complete route overview","viewer.route.instructions":"Click a start, then an end. Paths follow the arrows.","viewer.route.destination":"Where does the path from {label} end?","viewer.route.destination.find":"Find target","viewer.route.destination.find.aria":"Find a reachable route destination","viewer.route.differentDestination":"Choose a different destination","viewer.route.distinct":"Pick two different nodes.","viewer.route.unreachable":"Cannot reach {label} from here","viewer.route.unreachable.detail":"{target} cannot be reached from {source} along the arrows. Pick a highlighted node.","viewer.route.start.instructions":"Next, pick the end. Only nodes you can reach will light up.","viewer.route.copy.success":"Traced route link copied","viewer.route.copy.failed":"Could not copy traced route link","viewer.route.position":"Route position {index} of {total}: {label}","viewer.route.step":"Step {index} of {total} · {phase} · {label}","viewer.route.motionRequired":"Automatic journey requires Live motion","viewer.route.trigger.clear":"Clear traced route","viewer.route.overview.status":"{nodes} · {hops} · shortest path","viewer.route.overview.node.one":"{count} node","viewer.route.overview.node.other":"{count} nodes","viewer.route.overview.hop.one":"{count} step","viewer.route.overview.hop.other":"{count} steps","viewer.route.phase.playing":"Playing","viewer.route.phase.complete":"Complete","viewer.route.phase.inspecting":"Inspecting","viewer.route.destination.count.one":"{count} reachable node is highlighted. Click it.","viewer.route.destination.count.other":"{count} reachable nodes are highlighted. Click one.","viewer.route.noOutgoing":"No arrows lead out of this node. Clear it and pick another start.","viewer.route.result.title":"{source} to {target}","viewer.route.finder.source.title":"Choose route start","viewer.route.finder.source.placeholder":"Search route sources","viewer.route.finder.source.empty":"No matching route sources","viewer.route.finder.source.results":"Nodes that can start a route","viewer.route.finder.source.noun":"route sources","viewer.route.finder.source.badge":"start","viewer.route.finder.target.title":"Destination from {label}","viewer.route.finder.target.placeholder":"Search reachable destinations","viewer.route.finder.target.empty":"No matching reachable destinations","viewer.route.finder.target.results":"Reachable route destinations","viewer.route.finder.target.noun":"reachable destinations","viewer.route.hop.one":"{count} hop","viewer.route.hop.other":"{count} hops","viewer.lens.eyebrow":"Semantic lens","viewer.lens.title":"Compare system roles","viewer.lens.close":"Close semantic lens","viewer.lens.instruction":"Choose up to two semantic kinds. One reveals its real traffic; two compare only direct authored relationships.","viewer.lens.kinds":"Semantic kinds","viewer.lens.choose":"Choose a kind to inspect its nodes and touching relationships.","viewer.lens.copy":"Copy link to semantic lens","viewer.lens.clear":"Clear semantic lens","viewer.lens.open":"Open semantic lens","viewer.lens.openActive":"Open active semantic lens","viewer.lens.legend":"Semantic legend","viewer.lens.legend.inspect.one":"Inspect {label}, {count} node","viewer.lens.legend.inspect.other":"Inspect {label}, {count} nodes","viewer.lens.kind.count.one":"{label}, {count} node","viewer.lens.kind.count.other":"{label}, {count} nodes","viewer.lens.compare.one":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationship","viewer.lens.compare.other":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationships","viewer.lens.single":"{nodes} · {relationships} · connected peers remain visible","viewer.lens.node.one":"{count} {label} node","viewer.lens.node.other":"{count} {label} nodes","viewer.lens.relationship.one":"{count} touching relationship","viewer.lens.relationship.other":"{count} touching relationships","viewer.radar.title":"Semantic radar","viewer.radar.building":"Building overview","viewer.radar.openFull":"Open full semantic radar","viewer.radar.open":"Open radar","viewer.radar.close":"Close semantic radar","viewer.radar.surface":"Diagram overview. Click a node to focus it, or use arrow keys to pan.","viewer.radar.click":"Click node","viewer.radar.drag":"Drag to pan","viewer.radar.space":"Semantic radar needs more MAP space.","viewer.radar.nodes":"Semantic diagram radar nodes","viewer.radar.focus":"Focus {label} from Semantic Radar","viewer.radar.status":"{count} nodes · {viewport}","viewer.radar.fullMap":"{count} nodes · full map","viewer.radar.compacted":"Radar compacted to avoid covering the Semantic Passport or MAP controls.","viewer.radar.cancelWaiting":"Cancel semantic radar waiting for more MAP space","viewer.radar.needsSpace":"Semantic radar needs more visible MAP space","viewer.radar.viewport.full":"full map","viewer.radar.viewport.width":"{percent}% width","viewer.radar.viewport.scale":"{percent}% viewport","viewer.nav.controls":"Diagram view controls","viewer.nav.route":"Trace a directed route","viewer.nav.route.title":"Trace route (R)","viewer.nav.route.short":"PATH","viewer.nav.radar":"Open semantic radar","viewer.nav.radar.title":"Semantic radar (M)","viewer.nav.radar.short":"MAP","viewer.nav.lens":"Open semantic lens","viewer.nav.lens.title":"Semantic lens (L)","viewer.nav.lens.short":"LENS","viewer.nav.find":"Find a node","viewer.nav.find.title":"Find a node (/)","viewer.outline.title":"Node index","viewer.rail.show":"Notes \u0026 index","viewer.rail.controls":"Side panel","viewer.rail.collapse":"Collapse side panel","viewer.rail.bottom":"Move panel below the diagram","viewer.rail.right":"Move panel beside the diagram","viewer.nav.guide":"Open diagram guide","viewer.nav.guide.title":"Diagram guide (?)","viewer.nav.zoomOut":"Zoom out","viewer.nav.zoomOut.title":"Zoom out (-)","viewer.nav.reset":"Reset diagram view","viewer.nav.reset.title":"Reset view (0)","viewer.nav.read":"READ","viewer.nav.zoomIn":"Zoom in","viewer.nav.zoomIn.title":"Zoom in (+)","viewer.nav.camera":"{hint}. Reset diagram view","viewer.nav.camera.title":"{semantic}{hint} · reset view (0)","viewer.nav.camera.semantic":"Semantic camera active · ","viewer.nav.level.map":"MAP","viewer.nav.level.read":"READ","viewer.nav.level.full":"FULL","viewer.nav.level.auto":"AUTO","viewer.nav.detail.map":"Zoom in to reveal relationship labels and node context","viewer.nav.detail.read":"Zoom in again to reveal tags and annotations","viewer.nav.detail.full":"Full diagram detail","viewer.intent.summary":"{label}. {out} outgoing, {in} incoming{loops}. {total} connections. Press Enter for details.","viewer.intent.loops":", {count} self loop","viewer.common.copied":"Copied","viewer.common.copyFailed":"Copy failed","viewer.common.copyLink":"Copy link","viewer.common.clear":"Clear","viewer.common.close":"Close"}}</script>
+
+    <div class="scenario-bar" id="scenario-bar" hidden>
+      <div class="scenario-bar-row" id="scenario-row" hidden>
+        <span class="scenario-bar-title" id="scenario-title"></span>
+        <select id="scenario-group" hidden></select>
+        <select id="scenario-select"></select>
+        <span class="scenario-bar-dim" id="scenario-compare-label"></span>
+        <select id="scenario-compare"></select>
+        <button type="button" id="scenario-annotate" aria-pressed="true"></button>
+        <button type="button" id="scenario-open" hidden></button>
+        <button type="button" id="scenario-reset"></button>
+      </div>
+      <div class="scenario-stat" id="scenario-stat" aria-live="polite" hidden></div>
+      <div class="scenario-note" id="scenario-note" hidden></div>
+      <div class="scenario-diff" id="scenario-diff" hidden></div>
+      <div class="scenario-annotations" id="scenario-annotations" hidden></div>
+      <div class="scenario-bar-row" id="evidence-row" hidden>
+        <span class="scenario-bar-title" id="evidence-title"></span>
+        <span class="scenario-bar-chips" id="evidence-filter"></span>
+      </div>
+      <div class="scenario-note" id="evidence-note" hidden></div>
+      <dl class="evidence-levels" id="evidence-levels" hidden></dl>
+    </div>
     <!-- Main Diagram -->
     <div class="diagram-container" data-detail-level="read"
          data-preset-badge-editorial-plate="ARCHIFY / PLATE 04">
@@ -5354,6 +5539,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
                 <a class="semantic-passport-repository" id="focus-repository" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer"></a>
               </div>
               <div class="semantic-passport-evidence-links" id="focus-evidence-links"></div>
+            </div>
+            <div class="semantic-passport-details" id="focus-details" hidden>
+              <span class="semantic-passport-details-title" id="focus-details-title"></span>
+              <dl id="focus-details-list"></dl>
             </div>
             <span class="relationship-lens-summary" id="focus-summary" aria-live="polite"></span>
             <div class="semantic-passport-reach" id="focus-reach" hidden>
@@ -5804,6 +5993,18 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         clone.removeAttribute('data-route-journey');
         clone.removeAttribute('data-share-route');
         clone.removeAttribute('data-share-reach');
+        // Scenario, evidence-filter and role-highlight state is reader state.
+        clone.removeAttribute('data-scenario-active');
+        Array.prototype.forEach.call(clone.querySelectorAll('[data-extension-overlay]'), function (el) {
+          el.remove();
+        });
+        Array.prototype.forEach.call(clone.querySelectorAll('[data-scenario-state], [data-scenario-diff], [data-evidence-hidden], [data-role-dim], [data-role-selected]'), function (el) {
+          el.removeAttribute('data-scenario-state');
+          el.removeAttribute('data-scenario-diff');
+          el.removeAttribute('data-evidence-hidden');
+          el.removeAttribute('data-role-dim');
+          el.removeAttribute('data-role-selected');
+        });
         Array.prototype.forEach.call(clone.querySelectorAll('[data-intent-trace-overlay]'), function (el) {
           el.remove();
         });
@@ -9486,6 +9687,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       var diagram = document.querySelector('.diagram-container');
       var svg = diagram && diagram.querySelector(':scope > svg');
       var header = shell && shell.querySelector('.header');
+      // The scenario bar sits above the diagram and wraps with the reader
+      // width, so it is part of the fixed chrome like the header.
+      var scenarios = shell && shell.querySelector('.scenario-bar');
       var cards = shell && shell.querySelector('.cards');
       var viewBox = svg && svg.viewBox && svg.viewBox.baseVal;
       var ratio = viewBox && viewBox.height > 0 ? viewBox.width / viewBox.height : 0;
@@ -9770,7 +9974,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         if (docked) minWidth = Math.min(maxWidth, minWidth + railExtra);
         var stackedBelow = mode === 'bottom' ? 0 : docked ? 0 : outerHeight(cards);
         var fixedHeight = chrome.bodyY + chrome.diagramY + SAFE_BOTTOM_GAP +
-          outerHeight(header) + stackedBelow;
+          outerHeight(header) + outerHeight(scenarios) + stackedBelow;
         var availableSvgHeight = Math.max(1, window.innerHeight - fixedHeight);
         var desiredWidth = availableSvgHeight * ratio + chrome.diagramX + (docked ? railExtra : 0);
         var width = Math.max(minWidth, Math.min(maxWidth, desiredWidth, settledCap || desiredWidth));
@@ -9823,10 +10027,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule).catch(function () {});
       if (typeof ResizeObserver === 'function') {
         var resizeObserver = new ResizeObserver(schedule);
-        [header, cards].forEach(function (element) { if (element) resizeObserver.observe(element); });
+        [header, scenarios, cards].forEach(function (element) { if (element) resizeObserver.observe(element); });
       }
       if (typeof MutationObserver === 'function') {
         var contentObserver = new MutationObserver(schedule);
+        if (scenarios) contentObserver.observe(scenarios, { attributes: true, childList: true, subtree: true });
         if (cards) contentObserver.observe(cards, { attributes: true, childList: true, subtree: true });
         contentObserver.observe(html, { attributes: true, attributeFilter: ['data-embed', 'data-present'] });
       }
@@ -11514,7 +11719,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       function semanticType(node) {
         var authored = node.getAttribute('data-node-kind');
         if (authored) return authored;
-        var types = ['frontend', 'backend', 'database', 'cloud', 'security', 'messagebus', 'external'];
+        var types = ['frontend', 'backend', 'database', 'cloud', 'security', 'messagebus', 'external', 'control', 'compute'];
         return types.find(function (type) { return node.querySelector('.c-' + type); }) || 'node';
       }
 
@@ -13583,6 +13788,652 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         kinds: function () { return collectKinds().map(function (kind) { return { id: kind.id, count: kind.nodes.length }; }); }
       };
     })();
+
+    // ---- Scenarios, evidence, roles, details and drill-down ---------------------
+    // Every fact comes from the authored payload in #archify-extensions-data;
+    // this script only toggles presentation state and fills detail panels.
+    (function () {
+      'use strict';
+      var dataElement = document.getElementById('archify-extensions-data');
+      var svg = document.querySelector('.diagram-container svg');
+      var bar = document.getElementById('scenario-bar');
+      if (!svg || !bar) return;
+
+      var data = null;
+      if (dataElement) {
+        try { data = JSON.parse(dataElement.textContent || 'null'); } catch (_) { data = null; }
+      }
+
+      var zh = (document.documentElement.getAttribute('lang') || '').toLowerCase().indexOf('zh') === 0;
+      var TEXT = zh ? {
+        scenario: '场景',
+        item: '场景',
+        all: '全部（不筛选）',
+        compareWith: '与另一个{item}比较',
+        none: '不比较',
+        reset: '重置',
+        open: '打开详情页 ↗',
+        annotate: '显示标注',
+        counts: '{nodes} 个节点 · {edges} 条连线',
+        more: '比 {base} 多用 {count} 个',
+        fewer: '少用 {count} 个',
+        changed: '另有 {count} 个标注不同',
+        noDifference: '在这张图展示的粒度上，两者没有差别。',
+        groupAdded: '多用',
+        groupRemoved: '少用',
+        groupChanged: '标注不同',
+        was: '原为',
+        openNode: '打开详情',
+        allGroups: '全部分组',
+        details: '详情',
+        basis: '关联依据',
+        separator: '，',
+        stop: '。'
+      } : {
+        scenario: 'Scenario',
+        item: 'scenario',
+        all: 'All (no filter)',
+        compareWith: 'compare with another {item}',
+        none: 'no comparison',
+        reset: 'Reset',
+        open: 'Open detail page ↗',
+        annotate: 'Annotations',
+        counts: '{nodes} nodes · {edges} relationships',
+        more: '{count} more than {base}',
+        fewer: '{count} fewer',
+        changed: '{count} with a different annotation',
+        noDifference: 'No difference at the level this diagram shows.',
+        groupAdded: 'Only here',
+        groupRemoved: 'Only there',
+        groupChanged: 'Annotation differs',
+        was: 'was',
+        openNode: 'Open detail',
+        allGroups: 'All groups',
+        details: 'Details',
+        basis: 'Evidence',
+        separator: ', ',
+        stop: '.'
+      };
+      function fill(template, values) {
+        return template.replace(/\{(\w+)\}/g, function (_, name) { return values[name] == null ? '' : String(values[name]); });
+      }
+
+      var SVG_NS = 'http://www.w3.org/2000/svg';
+      var nodeElements = Array.prototype.slice.call(svg.querySelectorAll('[data-node-id]'));
+      var edgeElements = Array.prototype.slice.call(svg.querySelectorAll('[data-edge-from][data-edge-to]'));
+      var nodeById = {};
+      nodeElements.forEach(function (element) { nodeById[element.getAttribute('data-node-id')] = element; });
+      function nodeLabel(id) {
+        var element = nodeById[id];
+        return (element && element.getAttribute('data-node-label')) || id;
+      }
+      function empty(element) {
+        while (element.firstChild) element.removeChild(element.firstChild);
+      }
+      function activate(element) {
+        if (!element) return;
+        element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        if (typeof element.focus === 'function') element.focus();
+      }
+
+      function safeLink(value) {
+        if (typeof value !== 'string') return null;
+        var link = value.trim();
+        if (!link || /[\u0000-\u001f\u007f<>"'`\\]/.test(link)) return null;
+        if (/^https?:\/\//i.test(link)) return link;
+        if (/^[a-z][a-z0-9+.-]*:/i.test(link) || link.indexOf('//') === 0) return null;
+        return link;
+      }
+
+      // A shaped node carries its bounding box on the outline path; a plain
+      // node is the rect itself.
+      function nodeBox(element) {
+        var shaped = element.querySelector('[data-shape-box]');
+        var values;
+        if (shaped) {
+          values = (shaped.getAttribute('data-shape-box') || '').trim().split(/\s+/).map(parseFloat);
+        } else {
+          var rect = element.querySelector('rect:not(.c-mask)') || element.querySelector('rect');
+          if (!rect) return null;
+          values = ['x', 'y', 'width', 'height'].map(function (name) { return parseFloat(rect.getAttribute(name)); });
+        }
+        if (values.length !== 4 || !values.every(isFinite)) return null;
+        return { x: values[0], y: values[1], width: values[2], height: values[3] };
+      }
+
+      function clearOverlays(kind) {
+        Array.prototype.forEach.call(svg.querySelectorAll('[data-extension-overlay="' + kind + '"]'), function (element) {
+          element.parentNode.removeChild(element);
+        });
+      }
+
+      // ---- Drill-down links ----------------------------------------------------
+      nodeElements.forEach(function (element) {
+        var link = safeLink(element.getAttribute('data-node-link'));
+        var box = link ? nodeBox(element) : null;
+        if (!box) return;
+        var group = document.createElementNS(SVG_NS, 'g');
+        group.setAttribute('data-extension-overlay', 'link');
+        group.setAttribute('role', 'link');
+        group.setAttribute('tabindex', '0');
+        group.setAttribute('aria-label', TEXT.openNode + ': ' + (element.getAttribute('data-node-label') || ''));
+        group.setAttribute('transform', 'translate(' + (box.x + box.width - 9) + ' ' + (box.y + box.height - 9) + ')');
+        var circle = document.createElementNS(SVG_NS, 'circle');
+        circle.setAttribute('r', '6.5');
+        var arrow = document.createElementNS(SVG_NS, 'path');
+        arrow.setAttribute('d', 'M-2.4 2.4 2.4 -2.4M-1 -2.4h3.4v3.4');
+        var title = document.createElementNS(SVG_NS, 'title');
+        title.textContent = TEXT.openNode + ' → ' + link;
+        group.appendChild(title);
+        group.appendChild(circle);
+        group.appendChild(arrow);
+        function open(event) {
+          event.preventDefault();
+          event.stopPropagation();
+          window.location.href = link;
+        }
+        group.addEventListener('click', open);
+        group.addEventListener('pointerdown', function (event) { event.stopPropagation(); });
+        group.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') open(event);
+        });
+        element.appendChild(group);
+      });
+
+      // ---- Role legend highlight ----------------------------------------------
+      var selectedRole = null;
+      function applyRole() {
+        nodeElements.forEach(function (element) {
+          if (selectedRole && element.getAttribute('data-node-role') !== selectedRole) element.setAttribute('data-role-dim', '');
+          else element.removeAttribute('data-role-dim');
+        });
+        edgeElements.forEach(function (element) {
+          if (!selectedRole) { element.removeAttribute('data-role-dim'); return; }
+          var from = nodeById[element.getAttribute('data-edge-from')];
+          var to = nodeById[element.getAttribute('data-edge-to')];
+          var touches = (from && from.getAttribute('data-node-role') === selectedRole)
+            || (to && to.getAttribute('data-node-role') === selectedRole);
+          if (touches) element.removeAttribute('data-role-dim');
+          else element.setAttribute('data-role-dim', '');
+        });
+        Array.prototype.forEach.call(svg.querySelectorAll('[data-legend-role]'), function (entry) {
+          var active = entry.getAttribute('data-legend-role') === selectedRole;
+          if (active) entry.setAttribute('data-role-selected', '');
+          else entry.removeAttribute('data-role-selected');
+          entry.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+      }
+      Array.prototype.forEach.call(svg.querySelectorAll('[data-legend-role]'), function (entry) {
+        entry.setAttribute('role', 'button');
+        entry.setAttribute('tabindex', '0');
+        entry.setAttribute('aria-pressed', 'false');
+        function toggle(event) {
+          event.preventDefault();
+          event.stopPropagation();
+          var role = entry.getAttribute('data-legend-role');
+          selectedRole = selectedRole === role ? null : role;
+          applyRole();
+        }
+        entry.addEventListener('click', toggle);
+        entry.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') toggle(event);
+        });
+      });
+
+      if (!data) return;
+
+      // ---- Evidence: what each level means, and a filter ----------------------
+      var DASH = { confirmed: '', inferred: '7 4', unverified: '2 5' };
+      var evidenceLevels = Array.isArray(data.evidence) ? data.evidence : [];
+      var evidenceById = {};
+      evidenceLevels.forEach(function (level) { evidenceById[level.id] = level; });
+      function lineSample(level) {
+        var sample = document.createElementNS(SVG_NS, 'svg');
+        sample.setAttribute('class', 'evidence-sample');
+        sample.setAttribute('width', '28');
+        sample.setAttribute('height', '8');
+        sample.setAttribute('viewBox', '0 0 28 8');
+        sample.setAttribute('aria-hidden', 'true');
+        var line = document.createElementNS(SVG_NS, 'line');
+        line.setAttribute('x1', '1');
+        line.setAttribute('x2', '27');
+        line.setAttribute('y1', '4');
+        line.setAttribute('y2', '4');
+        if (DASH[level]) line.setAttribute('stroke-dasharray', DASH[level]);
+        sample.appendChild(line);
+        return sample;
+      }
+      var hiddenEvidence = {};
+      function applyEvidence() {
+        edgeElements.forEach(function (element) {
+          var level = element.getAttribute('data-edge-evidence');
+          if (level && hiddenEvidence[level]) element.setAttribute('data-evidence-hidden', '');
+          else element.removeAttribute('data-evidence-hidden');
+        });
+      }
+      if (evidenceLevels.length) {
+        var evidenceRow = document.getElementById('evidence-row');
+        var evidenceChips = document.getElementById('evidence-filter');
+        var evidenceNote = document.getElementById('evidence-note');
+        var evidenceList = document.getElementById('evidence-levels');
+        document.getElementById('evidence-title').textContent = data.evidenceTitle || TEXT.basis;
+        evidenceLevels.forEach(function (level) {
+          var count = edgeElements.filter(function (element) {
+            return element.tagName.toLowerCase() === 'path' && element.getAttribute('data-edge-evidence') === level.id;
+          }).length;
+          var chip = document.createElement('button');
+          chip.type = 'button';
+          chip.setAttribute('data-evidence-filter', level.id);
+          chip.setAttribute('aria-pressed', 'true');
+          if (level.description) chip.title = level.description;
+          chip.appendChild(lineSample(level.id));
+          chip.appendChild(document.createTextNode(level.label + ' ' + count));
+          chip.addEventListener('click', function () {
+            hiddenEvidence[level.id] = !hiddenEvidence[level.id];
+            chip.setAttribute('aria-pressed', hiddenEvidence[level.id] ? 'false' : 'true');
+            applyEvidence();
+          });
+          evidenceChips.appendChild(chip);
+          if (level.description) {
+            var term = document.createElement('dt');
+            term.appendChild(lineSample(level.id));
+            term.appendChild(document.createTextNode(level.label));
+            var definition = document.createElement('dd');
+            definition.textContent = level.description;
+            evidenceList.appendChild(term);
+            evidenceList.appendChild(definition);
+          }
+        });
+        if (data.evidenceNote) {
+          evidenceNote.textContent = data.evidenceNote;
+          evidenceNote.hidden = false;
+        }
+        evidenceList.hidden = !evidenceList.firstChild;
+        evidenceRow.hidden = false;
+        bar.hidden = false;
+      }
+
+      // ---- Details in the passport --------------------------------------------
+      // Focus owns the passport. This only fills one slot in it, from authored
+      // rows, whenever Focus changes what the passport is about.
+      var details = data.details && typeof data.details === 'object' ? data.details : { nodes: {}, relationships: {} };
+      var detailsPanel = document.getElementById('focus-details');
+      var detailsTitle = document.getElementById('focus-details-title');
+      var detailsList = document.getElementById('focus-details-list');
+      var focusChip = document.getElementById('focus-chip');
+      var focusId = document.getElementById('focus-id');
+      function relationshipElement(key) {
+        for (var index = 0; index < edgeElements.length; index += 1) {
+          var element = edgeElements[index];
+          if (element.tagName.toLowerCase() === 'path' && element.getAttribute('data-edge-key') === key) return element;
+        }
+        return null;
+      }
+      function renderDetails() {
+        if (!detailsPanel || !detailsList) return;
+        empty(detailsList);
+        var rows = [];
+        var title = '';
+        var open = focusChip && !focusChip.hidden;
+        var pinned = svg.getAttribute('data-relationship-pin-active');
+        var edge = open && pinned ? relationshipElement(pinned) : null;
+        if (edge) {
+          var label = edge.getAttribute('data-edge-label');
+          title = nodeLabel(edge.getAttribute('data-edge-from')) + ' → ' + nodeLabel(edge.getAttribute('data-edge-to'))
+            + (label ? ' · ' + label : '');
+          var level = evidenceById[edge.getAttribute('data-edge-evidence')];
+          if (level) {
+            rows.push({
+              label: data.evidenceTitle || TEXT.basis,
+              value: level.label + (level.description ? (zh ? '：' : ': ') + level.description : '')
+            });
+          }
+          rows = rows.concat((details.relationships || {})[pinned] || []);
+        } else if (open && focusId) {
+          var id = (focusId.textContent || '').trim();
+          rows = ((details.nodes || {})[id] || []).slice();
+          title = rows.length ? TEXT.details : '';
+        }
+        if (!rows.length) { detailsPanel.hidden = true; return; }
+        detailsTitle.textContent = title;
+        rows.forEach(function (row) {
+          var term = document.createElement('dt');
+          term.textContent = row.label;
+          var definition = document.createElement('dd');
+          definition.textContent = row.value;
+          detailsList.appendChild(term);
+          detailsList.appendChild(definition);
+        });
+        detailsPanel.hidden = false;
+      }
+      if (detailsPanel && typeof MutationObserver === 'function') {
+        var observer = new MutationObserver(renderDetails);
+        observer.observe(svg, { attributes: true, attributeFilter: ['data-focus-active', 'data-relationship-pin-active'] });
+        if (focusChip) observer.observe(focusChip, { attributes: true, attributeFilter: ['hidden'] });
+        if (focusId) observer.observe(focusId, { childList: true, characterData: true, subtree: true });
+        renderDetails();
+      }
+
+      // ---- Scenarios -----------------------------------------------------------
+      var scenarios = data.scenarios && Array.isArray(data.scenarios.items) ? data.scenarios : null;
+      if (!scenarios) return;
+
+      var items = scenarios.items;
+      var itemById = {};
+      items.forEach(function (item) { itemById[item.id] = item; });
+      var groups = Array.isArray(scenarios.groups) ? scenarios.groups : [];
+
+      var row = document.getElementById('scenario-row');
+      var groupSelect = document.getElementById('scenario-group');
+      var scenarioSelect = document.getElementById('scenario-select');
+      var compareSelect = document.getElementById('scenario-compare');
+      var annotateButton = document.getElementById('scenario-annotate');
+      var openButton = document.getElementById('scenario-open');
+      var resetButton = document.getElementById('scenario-reset');
+      var statElement = document.getElementById('scenario-stat');
+      var noteElement = document.getElementById('scenario-note');
+      var diffElement = document.getElementById('scenario-diff');
+      var annotationList = document.getElementById('scenario-annotations');
+
+      document.getElementById('scenario-title').textContent = scenarios.label || TEXT.scenario;
+      var itemLabel = scenarios.itemLabel || TEXT.item;
+      // Latin words inside Chinese copy read better with a space on each side.
+      if (zh && /^[\x20-\x7e]+$/.test(itemLabel)) itemLabel = ' ' + itemLabel + ' ';
+      document.getElementById('scenario-compare-label').textContent = fill(TEXT.compareWith, { item: itemLabel });
+      annotateButton.textContent = TEXT.annotate;
+      openButton.textContent = TEXT.open;
+      resetButton.textContent = TEXT.reset;
+
+      var state = { group: '', scenario: '', compare: '', annotate: true };
+
+      function option(value, label) {
+        var element = document.createElement('option');
+        element.value = value;
+        element.textContent = label;
+        return element;
+      }
+
+      function itemsInGroup() {
+        if (!state.group) return items;
+        return items.filter(function (item) { return item.group === state.group; });
+      }
+
+      function fillSelect(select, list, emptyLabel, selected) {
+        empty(select);
+        select.appendChild(option('', emptyLabel));
+        list.forEach(function (item) { select.appendChild(option(item.id, item.label)); });
+        select.value = list.some(function (item) { return item.id === selected; }) ? selected : '';
+      }
+
+      function memberSet(item) {
+        var set = {};
+        (item.nodes || []).forEach(function (id) { set[id] = true; });
+        return set;
+      }
+
+      function edgeActive(element, item, members) {
+        if (!members[element.getAttribute('data-edge-from')] || !members[element.getAttribute('data-edge-to')]) return false;
+        if (!Array.isArray(item.connections)) return true;
+        var id = element.getAttribute('data-edge-id');
+        return Boolean(id) && item.connections.indexOf(id) !== -1;
+      }
+
+      function setDiff(element, inCurrent, inBase, comparing, changed) {
+        if (!inCurrent && !(comparing && inBase)) {
+          element.setAttribute('data-scenario-state', 'out');
+          element.removeAttribute('data-scenario-diff');
+          return 'out';
+        }
+        element.setAttribute('data-scenario-state', 'in');
+        if (!comparing) { element.removeAttribute('data-scenario-diff'); return 'in'; }
+        var diff = inCurrent && inBase ? (changed ? 'changed' : 'same') : (inCurrent ? 'added' : 'removed');
+        element.setAttribute('data-scenario-diff', diff);
+        return diff;
+      }
+
+      function clearState() {
+        nodeElements.concat(edgeElements).forEach(function (element) {
+          element.removeAttribute('data-scenario-state');
+          element.removeAttribute('data-scenario-diff');
+        });
+        clearOverlays('annotation');
+      }
+
+      function drawAnnotation(element, text) {
+        var box = nodeBox(element);
+        if (!box) return;
+        // Stay inside the node's own width so a badge never covers a neighbor
+        // or the route beside it. The full text is in the scenario bar.
+        var capacity = Math.max(6, Math.floor((box.width - 12) / 4.4));
+        var label = text.length > capacity ? text.slice(0, capacity - 1) + '…' : text;
+        var width = Math.min(box.width - 4, Math.max(36, label.length * 4.4 + 10));
+        var group = document.createElementNS(SVG_NS, 'g');
+        group.setAttribute('data-extension-overlay', 'annotation');
+        group.setAttribute('aria-hidden', 'true');
+        group.setAttribute('pointer-events', 'none');
+        var rect = document.createElementNS(SVG_NS, 'rect');
+        rect.setAttribute('x', String(box.x + box.width / 2 - width / 2));
+        rect.setAttribute('y', String(box.y + box.height - 3));
+        rect.setAttribute('width', String(width));
+        rect.setAttribute('height', '11');
+        rect.setAttribute('rx', '3');
+        var textElement = document.createElementNS(SVG_NS, 'text');
+        textElement.setAttribute('x', String(box.x + box.width / 2));
+        textElement.setAttribute('y', String(box.y + box.height + 5));
+        textElement.setAttribute('text-anchor', 'middle');
+        textElement.textContent = label;
+        group.appendChild(rect);
+        group.appendChild(textElement);
+        svg.appendChild(group);
+      }
+
+      function chip(id, detail) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        var strong = document.createElement('b');
+        strong.textContent = nodeLabel(id);
+        button.appendChild(strong);
+        if (detail) {
+          var small = document.createElement('small');
+          small.textContent = ' ' + detail;
+          button.appendChild(small);
+        }
+        button.addEventListener('click', function () { activate(nodeById[id]); });
+        return button;
+      }
+
+      function renderAnnotations(item) {
+        empty(annotationList);
+        var ids = item ? Object.keys(item.annotations || {}) : [];
+        annotationList.hidden = !ids.length || !state.annotate;
+        annotateButton.hidden = !ids.length;
+        if (!ids.length || !state.annotate) return;
+        ids.forEach(function (id) {
+          if (!nodeById[id]) return;
+          drawAnnotation(nodeById[id], item.annotations[id]);
+          annotationList.appendChild(chip(id, item.annotations[id]));
+        });
+      }
+
+      function renderDiff(item, base, lists) {
+        empty(diffElement);
+        diffElement.hidden = true;
+        if (!base) return;
+        [
+          ['added', TEXT.groupAdded, lists.added.map(function (id) { return chip(id, (item.annotations || {})[id]); })],
+          ['removed', TEXT.groupRemoved, lists.removed.map(function (id) { return chip(id, (base.annotations || {})[id]); })],
+          ['changed', TEXT.groupChanged, lists.changed.map(function (id) {
+            return chip(id, (item.annotations || {})[id] + (zh ? '（' : ' (') + TEXT.was + ' ' + (base.annotations || {})[id] + (zh ? '）' : ')'));
+          })]
+        ].forEach(function (group) {
+          if (!group[2].length) return;
+          var line = document.createElement('div');
+          line.className = 'scenario-diff-group';
+          line.setAttribute('data-diff', group[0]);
+          var title = document.createElement('span');
+          title.textContent = group[1];
+          line.appendChild(title);
+          group[2].forEach(function (button) { line.appendChild(button); });
+          diffElement.appendChild(line);
+          diffElement.hidden = false;
+        });
+      }
+
+      function syncUrl() {
+        if (!window.history || typeof window.history.replaceState !== 'function') return;
+        try {
+          var url = new URL(window.location.href);
+          if (state.scenario) url.searchParams.set('scenario', state.scenario); else url.searchParams.delete('scenario');
+          if (state.scenario && state.compare) url.searchParams.set('compare', state.compare); else url.searchParams.delete('compare');
+          window.history.replaceState(window.history.state, '', url.toString());
+        } catch (_) { /* file:// hosts without URL support keep working without deep links */ }
+      }
+
+      function span(text, className) {
+        var element = document.createElement('span');
+        if (className) element.className = className;
+        element.textContent = text;
+        return element;
+      }
+
+      function apply() {
+        var item = itemById[state.scenario] || null;
+        var base = item && state.compare ? itemById[state.compare] || null : null;
+        clearState();
+        svg.removeAttribute('data-scenario-active');
+        noteElement.hidden = true;
+        openButton.hidden = true;
+        empty(statElement);
+        statElement.hidden = true;
+        compareSelect.disabled = !item;
+        if (!item) {
+          renderAnnotations(null);
+          renderDiff(null, null, null);
+          syncUrl();
+          return;
+        }
+        svg.setAttribute('data-scenario-active', item.id);
+        var members = memberSet(item);
+        var baseMembers = base ? memberSet(base) : {};
+        var counts = { nodes: 0, edges: 0 };
+        var lists = { added: [], removed: [], changed: [] };
+        nodeElements.forEach(function (element) {
+          var id = element.getAttribute('data-node-id');
+          // A node both scenarios run still differs when its annotation does.
+          var changed = Boolean(base) && Boolean(members[id]) && Boolean(baseMembers[id])
+            && ((item.annotations || {})[id] || '') !== ((base.annotations || {})[id] || '')
+            && Boolean((item.annotations || {})[id]) && Boolean((base.annotations || {})[id]);
+          var result = setDiff(element, Boolean(members[id]), Boolean(baseMembers[id]), Boolean(base), changed);
+          if (members[id]) counts.nodes += 1;
+          if (result === 'added') lists.added.push(id);
+          if (result === 'removed') lists.removed.push(id);
+          if (result === 'changed') lists.changed.push(id);
+        });
+        edgeElements.forEach(function (element) {
+          var inCurrent = edgeActive(element, item, members);
+          var inBase = base ? edgeActive(element, base, baseMembers) : false;
+          setDiff(element, inCurrent, inBase, Boolean(base), false);
+          if (inCurrent && element.tagName.toLowerCase() === 'path') counts.edges += 1;
+        });
+
+        statElement.appendChild(span(fill(TEXT.counts, counts)));
+        if (base) {
+          statElement.appendChild(document.createTextNode(zh ? '。' : '. '));
+          if (!lists.added.length && !lists.removed.length && !lists.changed.length) {
+            statElement.appendChild(span(scenarios.noDifferenceNote || TEXT.noDifference));
+          } else {
+            statElement.appendChild(span(fill(TEXT.more, { base: base.label, count: lists.added.length }), 'scenario-added'));
+            statElement.appendChild(document.createTextNode(TEXT.separator));
+            statElement.appendChild(span(fill(TEXT.fewer, { count: lists.removed.length }), 'scenario-removed'));
+            if (lists.changed.length) {
+              statElement.appendChild(document.createTextNode(TEXT.separator));
+              statElement.appendChild(span(fill(TEXT.changed, { count: lists.changed.length }), 'scenario-changed'));
+            }
+            statElement.appendChild(document.createTextNode(TEXT.stop));
+          }
+        }
+        statElement.hidden = false;
+
+        if (item.note) {
+          noteElement.textContent = item.note;
+          noteElement.hidden = false;
+        }
+        var link = safeLink(item.link);
+        if (link) {
+          openButton.hidden = false;
+          openButton.onclick = function () { window.location.href = link; };
+        }
+        renderDiff(item, base, lists);
+        renderAnnotations(item);
+        syncUrl();
+      }
+
+      function refreshSelects() {
+        var list = itemsInGroup();
+        fillSelect(scenarioSelect, list, TEXT.all, state.scenario);
+        state.scenario = scenarioSelect.value;
+        fillSelect(compareSelect, items.filter(function (item) { return item.id !== state.scenario; }), TEXT.none, state.compare);
+        state.compare = compareSelect.value;
+      }
+
+      if (groups.length) {
+        groupSelect.appendChild(option('', TEXT.allGroups));
+        groups.forEach(function (group) { groupSelect.appendChild(option(group.id, group.label)); });
+        groupSelect.hidden = false;
+        groupSelect.addEventListener('change', function () {
+          state.group = groupSelect.value;
+          state.scenario = '';
+          state.compare = '';
+          refreshSelects();
+          apply();
+        });
+      }
+      scenarioSelect.addEventListener('change', function () {
+        state.scenario = scenarioSelect.value;
+        var item = itemById[state.scenario];
+        state.compare = item && item.compare ? item.compare : '';
+        refreshSelects();
+        apply();
+      });
+      compareSelect.addEventListener('change', function () {
+        state.compare = compareSelect.value;
+        apply();
+      });
+      annotateButton.addEventListener('click', function () {
+        state.annotate = !state.annotate;
+        annotateButton.setAttribute('aria-pressed', state.annotate ? 'true' : 'false');
+        apply();
+      });
+      resetButton.addEventListener('click', function () {
+        state.group = '';
+        state.scenario = '';
+        state.compare = '';
+        if (groups.length) groupSelect.value = '';
+        refreshSelects();
+        apply();
+      });
+
+      // Initial state: explicit deep link first, then the authored default.
+      var initial = '';
+      var initialCompare = '';
+      try {
+        var params = new URL(window.location.href).searchParams;
+        initial = params.get('scenario') || '';
+        initialCompare = params.get('compare') || '';
+      } catch (_) { /* no URL support: fall back to the authored default */ }
+      if (!itemById[initial]) { initial = scenarios.default && itemById[scenarios.default] ? scenarios.default : ''; initialCompare = ''; }
+      state.scenario = initial;
+      if (initial && groups.length && itemById[initial].group) {
+        state.group = itemById[initial].group;
+        groupSelect.value = state.group;
+      }
+      state.compare = itemById[initialCompare] && initialCompare !== initial ? initialCompare : '';
+      refreshSelects();
+      row.hidden = false;
+      bar.hidden = false;
+      apply();
+    })();
+
 
     /* ============================================================
        Diagram Guide — a factual command deck over existing interactions.

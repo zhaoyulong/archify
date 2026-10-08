@@ -35,7 +35,7 @@
       function semanticType(node) {
         var authored = node.getAttribute('data-node-kind');
         if (authored) return authored;
-        var types = ['frontend', 'backend', 'database', 'cloud', 'security', 'messagebus', 'external'];
+        var types = ['frontend', 'backend', 'database', 'cloud', 'security', 'messagebus', 'external', 'control', 'compute'];
         return types.find(function (type) { return node.querySelector('.c-' + type); }) || 'node';
       }
 

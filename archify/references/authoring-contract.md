@@ -326,6 +326,145 @@ states in the same column there need distinct `yOffset` values.
 In both versions a recoverable failure needs a real transition back to an
 active state. A card saying “retry” is not topology.
 
+## Roles, scenarios, evidence and links
+
+These fields are available in `architecture`, `workflow` and `dataflow`
+diagrams. Use them only when the question needs them.
+
+### Roles
+
+`type` is the tone family: color, viewer kind, legend swatch. `role` is the
+semantic kind inside that family: icon, legend wording and passport label.
+A role always belongs to one tone, so a node may omit `type` when it has a
+`role`. When both are authored they must agree.
+
+| Tone | Built-in roles and their shape |
+|---|---|
+| `frontend` | `client` pill |
+| `security` | `gateway` shield, `limiter` octagon |
+| `backend` | `service` rect, `engine` hexagon, `operator` subroutine, `model` octagon |
+| `database` | `cache` cylinder, `featurestore` table, `index` stack, `warehouse` drum |
+| `messagebus` | `topic` pipe |
+| `control` | `config` document, `experiment` hexagon, `registry` pill |
+| `compute` | `stream-job` parallelogram, `batch-job` stack |
+| `external` | `datasource` trapezoid |
+
+Roles that share a tone never share a shape, so a reader tells a cache from a
+feature store by outline, without reading an icon.
+
+Declare a project role in `meta.roles`. `sigil` reuses a built-in icon:
+
+```json
+"roles": { "ranker": { "tone": "backend", "label": "Ranker", "sigil": "model" } }
+```
+
+Never pick a role for its color. Pick it for what the component is.
+
+### Shapes
+
+A shape is the outline drawn inside a node's box. It comes from the node's own
+`shape`, else from its role, else it is the plain `rect`. The values are
+`rect`, `cylinder`, `drum`, `pipe`, `hexagon`, `octagon`, `pill`,
+`subroutine`, `table`, `stack`, `document`, `shield`, `parallelogram` and
+`trapezoid`. A project role may set `shape` in `meta.roles`.
+
+- The box, not the outline, is what layout, spacing and routes use. Place and
+  size a shaped node exactly as you would a plain one.
+- Every outline meets the box at the middle of each side, where routes attach.
+  `parallelogram`, `trapezoid` and `document` reach up to 4px past a corner.
+- Some shapes leave less room for text. Validation uses the narrower width, so
+  a label that fit a plain node may need a wider shaped one.
+- Set `shape` on a node only when the role's outline is wrong for that one
+  component. Do not use shapes as decoration.
+
+### Scenarios
+
+`meta.scenarios` names subsets of one diagram: a bundle, a market, a user
+group, an experiment arm. The diagram draws the union; a scenario lists what
+it actually runs.
+
+```json
+"scenarios": {
+  "label": "Bundle",
+  "default": "home.new",
+  "groups": [{ "id": "home", "label": "home" }],
+  "items": [{
+    "id": "home.new", "group": "home", "label": "new users",
+    "nodes": ["gateway", "recall", "rank"],
+    "connections": ["gw-recall", "recall-rank"],
+    "annotations": { "recall": "limit=500" },
+    "compare": "home.old",
+    "link": "home-new.html"
+  }]
+}
+```
+
+- `nodes` is required. `connections` is optional and refers to relationship
+  `id` values; without it a relationship is active when both ends are.
+- `annotations` may only name nodes of that scenario.
+- `compare` is the scenario the reader is offered to compare against.
+- `itemLabel` names one scenario in the reader's words, such as `graph`. It
+  appears in "compare with another graph".
+- A node both scenarios run still counts as different when its annotation
+  differs. `noDifferenceNote` is shown when nothing differs; use it to say
+  where the difference is, if it lies below what the diagram shows.
+- Scenarios are not guided views. Guided views are at most five curated
+  chapters of one story. Scenarios are configurations of the system.
+
+### Evidence
+
+`evidence` on a relationship states how well it is supported:
+`confirmed`, `inferred` or `unverified`. Omit it for relationships that are
+simply true by construction. Never upgrade a level to make a diagram look
+finished.
+
+A level name alone tells a reader nothing. State what was checked:
+
+```json
+"evidence": {
+  "title": "Offline to online evidence",
+  "note": "These links come from reading code, not from a registry.",
+  "levels": {
+    "confirmed": { "label": "Key or table matched", "description": "Both sides use the same key pattern, table or topic." },
+    "inferred": { "label": "Same cluster only", "description": "Both sides connect to one cluster; keys were not compared." },
+    "unverified": { "label": "No reader found", "description": "Same cluster, but no online reader of these keys was found." }
+  }
+}
+```
+
+The label appears in the legend and on the filter. The description appears
+beside it in the viewer and in the detail panel of each relationship. A level
+you rename without a description shows no description, because the generic
+sentence may not describe your label.
+
+### Details
+
+`details` on a node or a relationship is a short list of facts the reader
+opens on demand: a key pattern, a data structure, a table and its primary key,
+an expiry, who reads it, and why the link is believed.
+
+```json
+"details": [
+  { "label": "Key", "value": "user_blocklist:{uid}" },
+  { "label": "Structure", "value": "sorted set, member is the blocked user id" },
+  { "label": "Read by", "value": "PrepareOp block_host, ZREVRANGE" },
+  { "label": "Basis", "value": "Key pattern is identical on both sides" }
+]
+```
+
+- At most 16 rows, 40 characters per label, 400 per value.
+- Put what is true of a store on the store, and what is true of one writer or
+  reader on the relationship.
+- Details are for facts. A sentence that explains the whole diagram belongs in
+  a card.
+- Say so when something could not be determined. An empty row that silently
+  disappears reads as "nothing to know".
+
+### Links
+
+`link` on a node, or on a scenario, points to another page: a relative path
+to a sibling artifact, or an `http(s)` URL. Any other scheme is rejected.
+
 ## Repository evidence
 
 When the diagram must reflect real code, inspect repository entrypoints,

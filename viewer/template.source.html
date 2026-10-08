@@ -286,6 +286,29 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
     <!-- ARCHIFY:SOURCE_EVIDENCE_DATA -->
     <!-- ARCHIFY:I18N_DATA -->
+    <!-- ARCHIFY:EXTENSIONS_DATA -->
+    <div class="scenario-bar" id="scenario-bar" hidden>
+      <div class="scenario-bar-row" id="scenario-row" hidden>
+        <span class="scenario-bar-title" id="scenario-title"></span>
+        <select id="scenario-group" hidden></select>
+        <select id="scenario-select"></select>
+        <span class="scenario-bar-dim" id="scenario-compare-label"></span>
+        <select id="scenario-compare"></select>
+        <button type="button" id="scenario-annotate" aria-pressed="true"></button>
+        <button type="button" id="scenario-open" hidden></button>
+        <button type="button" id="scenario-reset"></button>
+      </div>
+      <div class="scenario-stat" id="scenario-stat" aria-live="polite" hidden></div>
+      <div class="scenario-note" id="scenario-note" hidden></div>
+      <div class="scenario-diff" id="scenario-diff" hidden></div>
+      <div class="scenario-annotations" id="scenario-annotations" hidden></div>
+      <div class="scenario-bar-row" id="evidence-row" hidden>
+        <span class="scenario-bar-title" id="evidence-title"></span>
+        <span class="scenario-bar-chips" id="evidence-filter"></span>
+      </div>
+      <div class="scenario-note" id="evidence-note" hidden></div>
+      <dl class="evidence-levels" id="evidence-levels" hidden></dl>
+    </div>
     <!-- Main Diagram -->
     <div class="diagram-container" data-detail-level="read"
          data-preset-badge-editorial-plate="{{i18n:viewer.preset.badge.editorialPlate}}">
@@ -513,6 +536,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
                 <a class="semantic-passport-repository" id="focus-repository" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer"></a>
               </div>
               <div class="semantic-passport-evidence-links" id="focus-evidence-links"></div>
+            </div>
+            <div class="semantic-passport-details" id="focus-details" hidden>
+              <span class="semantic-passport-details-title" id="focus-details-title"></span>
+              <dl id="focus-details-list"></dl>
             </div>
             <span class="relationship-lens-summary" id="focus-summary" aria-live="polite"></span>
             <div class="semantic-passport-reach" id="focus-reach" hidden>
@@ -1171,6 +1198,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 /* ARCHIFY:ROUTE_PROBE */
 
 /* ARCHIFY:SEMANTIC_LENS */
+
+/* ARCHIFY:SCENARIOS */
 
     /* ============================================================
        Diagram Guide — a factual command deck over existing interactions.

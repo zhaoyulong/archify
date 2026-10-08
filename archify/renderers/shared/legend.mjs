@@ -1,5 +1,6 @@
 import { throwDiagnosticError } from './diagnostics.mjs';
-import { rectsOverlap, segmentIntersectsRect } from './geometry.mjs';
+import { componentFill, rectsOverlap, segmentIntersectsRect } from './geometry.mjs';
+import { renderShapeSwatch } from './shapes.mjs';
 import { esc, textUnits } from './utils.mjs';
 import { translateMessage } from './i18n.mjs';
 
@@ -207,11 +208,32 @@ export function renderLegend({ entries, layout, renderSwatch, locale }) {
     const interactive = entry.interactive
       ? ` data-legend-kind="${esc(entry.kind)}" data-legend-label="${esc(entry.label)}"`
       : '';
-    parts.push(`          <g data-legend-semantic-kind="${esc(entry.kind)}"${interactive} data-legend-x="${entry.x}" data-legend-baseline="${entry.baseline}" data-legend-width="${entry.width}">`);
+    const roleAttr = entry.role
+      ? ` data-legend-role="${esc(entry.role)}"`
+      : entry.evidence ? ` data-legend-evidence-level="${esc(entry.evidence)}"` : '';
+    parts.push(`          <g data-legend-semantic-kind="${esc(entry.kind)}"${roleAttr}${interactive} data-legend-x="${entry.x}" data-legend-baseline="${entry.baseline}" data-legend-width="${entry.width}">`);
     parts.push(`            ${renderSwatch(entry)}`);
     parts.push(`            <text x="${entry.x + (entry.swatchWidth ?? 14) + (entry.swatchGap ?? DEFAULT_SWATCH_GAP)}" y="${entry.baseline}" class="t-muted" font-size="${renderedFontSize}" font-weight="500">${esc(entry.label)}</text>`);
     parts.push('          </g>');
   }
   parts.push('        </g>');
   return parts.join('\n');
+}
+
+// Role entries show the role's outline in its tone color, because several
+// roles share one tone and the outline is what tells them apart.
+export function renderRoleSwatch(entry) {
+  return renderShapeSwatch({
+    shape: entry.shape,
+    x: entry.x,
+    y: entry.baseline - 10,
+    fillClass: componentFill[entry.tone] || 'c-external',
+  });
+}
+
+// Evidence entries show the line style that carries the level on the diagram.
+export function renderEvidenceSwatch(entry) {
+  const y = entry.baseline - 3;
+  const dash = entry.dash ? ` style="stroke-dasharray:${esc(entry.dash)}"` : '';
+  return `<path data-legend-evidence="${esc(entry.evidence)}" d="M ${entry.x} ${y} L ${entry.x + 28} ${y}" class="a-default" stroke-width="1.6"${dash}/>`;
 }

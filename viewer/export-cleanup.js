@@ -19,6 +19,18 @@
         clone.removeAttribute('data-route-journey');
         clone.removeAttribute('data-share-route');
         clone.removeAttribute('data-share-reach');
+        // Scenario, evidence-filter and role-highlight state is reader state.
+        clone.removeAttribute('data-scenario-active');
+        Array.prototype.forEach.call(clone.querySelectorAll('[data-extension-overlay]'), function (el) {
+          el.remove();
+        });
+        Array.prototype.forEach.call(clone.querySelectorAll('[data-scenario-state], [data-scenario-diff], [data-evidence-hidden], [data-role-dim], [data-role-selected]'), function (el) {
+          el.removeAttribute('data-scenario-state');
+          el.removeAttribute('data-scenario-diff');
+          el.removeAttribute('data-evidence-hidden');
+          el.removeAttribute('data-role-dim');
+          el.removeAttribute('data-role-selected');
+        });
         Array.prototype.forEach.call(clone.querySelectorAll('[data-intent-trace-overlay]'), function (el) {
           el.remove();
         });

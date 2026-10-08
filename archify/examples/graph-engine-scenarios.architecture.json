@@ -1,0 +1,431 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Graph Engine Scenarios",
+    "output": "graph-engine-scenarios.html",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1240,
+      640
+    ],
+    "roles": {
+      "ranker": {
+        "tone": "backend",
+        "label": "Ranker",
+        "sigil": "model"
+      }
+    },
+    "scenarios": {
+      "label": "Bundle",
+      "default": "home-new",
+      "groups": [
+        {
+          "id": "home",
+          "label": "home"
+        },
+        {
+          "id": "sliding",
+          "label": "sliding"
+        }
+      ],
+      "items": [
+        {
+          "id": "home-new",
+          "group": "home",
+          "label": "home / new users",
+          "note": "New-user graph: cold-start recall plus the full ranking chain.",
+          "nodes": [
+            "gateway",
+            "ab",
+            "engine",
+            "recall",
+            "coldstart",
+            "rank",
+            "mix",
+            "cache",
+            "features",
+            "config"
+          ],
+          "annotations": {
+            "recall": "limit=500",
+            "rank": "model=home_v8"
+          },
+          "compare": "home-old",
+          "link": "graph-engine-scenarios.html"
+        },
+        {
+          "id": "home-old",
+          "group": "home",
+          "label": "home / returning users",
+          "nodes": [
+            "gateway",
+            "ab",
+            "engine",
+            "recall",
+            "rank",
+            "mix",
+            "cache",
+            "features",
+            "config"
+          ],
+          "annotations": {
+            "recall": "limit=300"
+          }
+        },
+        {
+          "id": "sliding-default",
+          "group": "sliding",
+          "label": "sliding / default",
+          "nodes": [
+            "gateway",
+            "engine",
+            "recall",
+            "mix",
+            "cache",
+            "config"
+          ],
+          "connections": [
+            "gw-engine",
+            "engine-recall",
+            "recall-mix",
+            "recall-cache",
+            "config-engine"
+          ]
+        }
+      ],
+      "itemLabel": "graph",
+      "noDifferenceNote": "Both graphs run the same stages and stores. They differ in operator parameters."
+    },
+    "evidence": {
+      "title": "Offline to online evidence",
+      "note": "These links come from reading code, not from a registry, so they are not equally certain.",
+      "levels": {
+        "confirmed": {
+          "label": "Key or table matched",
+          "description": "Both sides use the same key pattern, table or topic."
+        },
+        "inferred": {
+          "label": "Same cluster only",
+          "description": "Both sides connect to one cluster; keys were not compared."
+        },
+        "unverified": {
+          "label": "No reader found",
+          "description": "Same cluster, but no online reader of these keys was found."
+        }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "gateway",
+      "role": "gateway",
+      "label": "Gateway",
+      "sublabel": "admission · limits",
+      "pos": [
+        60,
+        250
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "ab",
+      "role": "experiment",
+      "label": "AB Platform",
+      "sublabel": "traffic split",
+      "pos": [
+        60,
+        90
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "config",
+      "role": "config",
+      "label": "Config Center",
+      "sublabel": "bundle · graph",
+      "pos": [
+        320,
+        90
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "engine",
+      "role": "engine",
+      "label": "Graph Engine",
+      "sublabel": "DAG per bundle",
+      "pos": [
+        320,
+        250
+      ],
+      "size": [
+        150,
+        60
+      ],
+      "link": "graph-engine-scenarios.html"
+    },
+    {
+      "id": "recall",
+      "role": "operator",
+      "label": "Recall Op",
+      "sublabel": "candidate fetch",
+      "pos": [
+        580,
+        250
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "coldstart",
+      "role": "operator",
+      "label": "Cold-start Op",
+      "sublabel": "new users only",
+      "pos": [
+        580,
+        90
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "rank",
+      "role": "ranker",
+      "label": "Rank Op",
+      "sublabel": "model scoring",
+      "pos": [
+        840,
+        250
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "mix",
+      "type": "backend",
+      "label": "Mix Op",
+      "sublabel": "quota · dedup",
+      "pos": [
+        840,
+        410
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "cache",
+      "role": "cache",
+      "label": "Recall Index",
+      "sublabel": "redis",
+      "pos": [
+        580,
+        410
+      ],
+      "size": [
+        150,
+        60
+      ],
+      "details": [
+        {
+          "label": "Cluster",
+          "value": "recall-index redis"
+        },
+        {
+          "label": "Keys",
+          "value": "stream::{region}:{session}|top_selling::item::def"
+        },
+        {
+          "label": "Structure",
+          "value": "string with expiry, JSON list of item ids"
+        }
+      ]
+    },
+    {
+      "id": "features",
+      "role": "featurestore",
+      "label": "Feature Store",
+      "sublabel": "session features",
+      "pos": [
+        840,
+        90
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "job",
+      "role": "stream-job",
+      "label": "Feature Job",
+      "sublabel": "flink",
+      "pos": [
+        1080,
+        90
+      ],
+      "size": [
+        120,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "gw-engine",
+      "from": "gateway",
+      "to": "engine",
+      "label": "recommend",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ab-gw",
+      "from": "ab",
+      "to": "gateway",
+      "label": "group",
+      "variant": "dashed",
+      "labelDy": 24
+    },
+    {
+      "id": "config-engine",
+      "from": "config",
+      "to": "engine",
+      "label": "graph",
+      "variant": "security",
+      "labelDy": 24
+    },
+    {
+      "id": "engine-recall",
+      "from": "engine",
+      "to": "recall",
+      "label": "run",
+      "variant": "emphasis"
+    },
+    {
+      "id": "cold-recall",
+      "from": "coldstart",
+      "to": "recall",
+      "label": "merge",
+      "labelDy": 24
+    },
+    {
+      "id": "recall-rank",
+      "from": "recall",
+      "to": "rank",
+      "label": "candidates",
+      "variant": "emphasis"
+    },
+    {
+      "id": "rank-mix",
+      "from": "rank",
+      "to": "mix",
+      "label": "scores",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "id": "recall-mix",
+      "from": "recall",
+      "to": "mix",
+      "label": "fallback",
+      "variant": "dashed"
+    },
+    {
+      "id": "recall-cache",
+      "from": "recall",
+      "to": "cache",
+      "label": "read",
+      "evidence": "confirmed",
+      "labelDy": 24,
+      "details": [
+        {
+          "label": "Key",
+          "value": "stream::{region}:{session}|top_selling::item::def"
+        },
+        {
+          "label": "Read by",
+          "value": "Recall Op, MGET"
+        },
+        {
+          "label": "Basis",
+          "value": "Key pattern is identical on both sides"
+        }
+      ]
+    },
+    {
+      "id": "rank-features",
+      "from": "rank",
+      "to": "features",
+      "label": "read",
+      "evidence": "inferred",
+      "labelDy": -24
+    },
+    {
+      "id": "job-features",
+      "from": "job",
+      "to": "features",
+      "label": "write",
+      "evidence": "unverified",
+      "details": [
+        {
+          "label": "Table",
+          "value": "session_features"
+        },
+        {
+          "label": "Written by",
+          "value": "Feature Job"
+        },
+        {
+          "label": "Basis",
+          "value": "No operator that reads this table was found"
+        }
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Scenarios",
+      "items": [
+        "One authored graph, many bundles",
+        "Switch a bundle to dim what it does not run",
+        "Compare two groups to see added and removed operators"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Roles",
+      "items": [
+        "type stays the color family",
+        "role picks the icon and the legend wording",
+        "meta.roles declares project-specific roles"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Evidence",
+      "items": [
+        "confirmed: key or table matched",
+        "inferred: same cluster only",
+        "unverified: consumer not found yet"
+      ]
+    }
+  ]
+}

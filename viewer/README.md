@@ -6,6 +6,7 @@ transactions, `semantic-radar.js` for the overview map, `motion-governor.js` for
 motion mode and ownership, `node-finder.js` for node search and endpoint picking,
 `intent-trace.js` for hover/focus previews, `semantic-lens.js` for type selection
 and legend previews, `route-probe.js` for directed paths and Route Journey,
+`scenarios.js` for scenario switching and comparison, evidence filtering, role highlighting and drill-down links,
 `focus.js` for semantic selection, relationships, reachability and shared flow tokens,
 `export.js` for export menus, serialization, images, cards, clipboard and WebM,
 `export-cleanup.js` for its private SVG clone cleanup, `viewer.css` for the
@@ -795,6 +796,66 @@ The Governor manages these Viewer signals, not every animation on the page.
 Camera retains its transactions and CSS transitions; Export retains its separate
 WebM canvas timeline. Authored geometry/IDs and canonical export cleanup remain
 unchanged by this source extraction.
+
+## Scenarios, evidence, roles and drill-down contract
+
+`scenarios.js` reads one authored payload, `#archify-extensions-data`, and
+toggles presentation state. It owns no topology: every node set, relationship
+set, annotation and link comes from the diagram JSON, validated by
+`renderers/shared/extensions.mjs` before render.
+
+### Interface and dependencies
+
+- Input: `#archify-extensions-data` (absent when a diagram uses no
+  extension), the diagram SVG, and the static `#scenario-bar` markup in
+  `template.source.html`.
+- It reads `data-node-id`, `data-node-role`, `data-node-link`,
+  `data-edge-from`, `data-edge-to`, `data-edge-id` and `data-edge-evidence`.
+- A plain node's box is its second `rect`. A shaped node has no `rect`; its
+  box is `data-shape-box` on the `[data-node-shape]` path. Overlays and
+  comparison outlines must handle both.
+- It does not call Focus, Lens, Route Probe or Guided Views, and none of them
+  call it. A scenario and a focus selection may be active together.
+- Scenario and comparison are mirrored into the `scenario` and `compare`
+  query parameters with `history.replaceState`. The hash stays owned by Focus.
+
+### DOM, styles and output state
+
+| State | Attribute | Set on |
+|---|---|---|
+| scenario membership | `data-scenario-state="in|out"` | nodes, relationships |
+| comparison | `data-scenario-diff="same|added|removed"` | nodes, relationships |
+| active scenario | `data-scenario-active` | root SVG |
+| evidence filter | `data-evidence-hidden` | relationships |
+| role highlight | `data-role-dim`, `data-role-selected` | nodes, relationships, legend entries |
+| overlays | `data-extension-overlay="link|annotation"` | appended groups |
+
+Comparison adds `changed` to `data-scenario-diff` for a node both scenarios
+run with different annotations.
+
+Details are not state. Focus owns the passport; `scenarios.js` fills one slot
+in it, `#focus-details`, whenever `data-focus-active`,
+`data-relationship-pin-active`, `#focus-id` or the passport's `hidden`
+attribute changes. A pinned relationship shows its evidence level and its own
+rows; otherwise the focused node shows its rows. Rows are written with
+`textContent`, never as markup.
+
+The scenario bar wraps with the reader width, so `reader-layout.js` counts it
+as fixed chrome next to the header. Leaving it out makes the adaptive width
+oscillate on wide diagrams.
+
+Rules for authored semantics start with `svg` and require `data-edge-from`,
+so they are exported and never match the hit rails Focus clones from
+relationship paths. Rules for reader state start with `.diagram-container`
+and are never exported. Export cleanup removes every attribute and overlay in
+the table above.
+
+### Resources and verification
+
+`test/roles-scenarios.test.mjs` covers validation, emitted attributes and the
+payload. `test/scenarios-browser.test.mjs` drives a real browser through
+scenario selection, comparison, the evidence filter, node and relationship
+details and layout stability; it runs when `ARCHIFY_CHROME` is set.
 
 ## Export cleanup contract
 

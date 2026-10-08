@@ -24,6 +24,9 @@
         "engineering_profile": { "enum": ["deployment-ownership"] },
         "repository": { "$ref": "common.schema.json#/$defs/repository" },
         "views": { "$ref": "common.schema.json#/$defs/guidedViews" },
+        "roles": { "$ref": "common.schema.json#/$defs/customRoles" },
+        "scenarios": { "$ref": "common.schema.json#/$defs/scenarios" },
+        "evidence": { "$ref": "common.schema.json#/$defs/evidenceLegend" },
         "legend": {
           "type": "object",
           "additionalProperties": false,
@@ -39,7 +42,9 @@
                 "cloud": { "$ref": "common.schema.json#/$defs/legendEntry" },
                 "security": { "$ref": "common.schema.json#/$defs/legendEntry" },
                 "messagebus": { "$ref": "common.schema.json#/$defs/legendEntry" },
-                "external": { "$ref": "common.schema.json#/$defs/legendEntry" }
+                "external": { "$ref": "common.schema.json#/$defs/legendEntry" },
+                "control": { "$ref": "common.schema.json#/$defs/legendEntry" },
+                "compute": { "$ref": "common.schema.json#/$defs/legendEntry" }
               }
             }
           }
@@ -76,10 +81,14 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "type", "label"],
+        "required": ["id", "label"],
         "properties": {
           "id": { "$ref": "common.schema.json#/$defs/id" },
           "type": { "$ref": "common.schema.json#/$defs/componentType" },
+          "role": { "$ref": "common.schema.json#/$defs/role" },
+          "shape": { "$ref": "common.schema.json#/$defs/nodeShape" },
+          "link": { "$ref": "common.schema.json#/$defs/link" },
+          "details": { "$ref": "common.schema.json#/$defs/details" },
           "label": { "type": "string", "minLength": 1 },
           "sublabel": { "type": "string" },
           "tag": { "type": "string" },
@@ -132,6 +141,8 @@
           "to": { "$ref": "common.schema.json#/$defs/id" },
           "label": { "type": "string" },
           "variant": { "$ref": "common.schema.json#/$defs/variant" },
+          "evidence": { "$ref": "common.schema.json#/$defs/evidence" },
+          "details": { "$ref": "common.schema.json#/$defs/details" },
           "fromSide": { "$ref": "common.schema.json#/$defs/side" },
           "toSide": { "$ref": "common.schema.json#/$defs/side" },
           "route": { "enum": ["auto", "straight", "orthogonal-h", "orthogonal-v"] },

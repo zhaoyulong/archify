@@ -26,7 +26,8 @@ const FIXTURES = {
   workflow: {
     schema_version: 1,
     diagram_type: 'workflow',
-    meta: { title: 'Legend workflow', viewBox: [720, 360] },
+    // Wide enough for the full nine-kind catalog on one legend row.
+    meta: { title: 'Legend workflow', viewBox: [900, 360] },
     lanes: [{ id: 'main', label: 'Main' }],
     nodes: [
       { id: 'ui', lane: 'main', col: 0, type: 'frontend', label: 'UI' },
@@ -78,8 +79,8 @@ const FIXTURES = {
 };
 
 const CATALOGS = {
-  architecture: ['frontend', 'backend', 'database', 'cloud', 'security', 'messagebus', 'external'],
-  workflow: ['frontend', 'backend', 'security', 'messagebus', 'database', 'cloud', 'external'],
+  architecture: ['frontend', 'backend', 'database', 'cloud', 'security', 'messagebus', 'external', 'control', 'compute'],
+  workflow: ['frontend', 'backend', 'security', 'messagebus', 'database', 'cloud', 'external', 'control', 'compute'],
   sequence: ['emphasis', 'return', 'security', 'dashed', 'default'],
   dataflow: ['emphasis', 'security', 'dashed', 'database', 'default'],
   lifecycle: ['start', 'active', 'waiting', 'decision', 'success', 'failure', 'neutral', 'external'],

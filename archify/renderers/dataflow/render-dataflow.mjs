@@ -3,7 +3,10 @@ import { fileURLToPath } from 'node:url';
 import { esc, renderDefinitions, renderSemanticSigil, textUnits } from '../shared/utils.mjs';
 import { animateAttr, focusEdgeAttrs, focusNodeAttrs, focusNodeTitle, loadDiagramWithBrandMarks, writeDiagram, svgAccessibleText, svgRootAttrs } from '../shared/cli.mjs';
 import { throwDiagnosticProblems } from '../shared/diagnostics.mjs';
-import { resolveLegend, renderLegend as renderResolvedLegend } from '../shared/legend.mjs';
+import { evidenceLegendEntries } from '../shared/extensions.mjs';
+import { nodeShape, roleLegendEntries, rolePassport } from '../shared/roles.mjs';
+import { isShaped, renderNodeBody, shapeSigilOffset, shapeTextWidth } from '../shared/shapes.mjs';
+import { resolveLegend, renderLegend as renderResolvedLegend, renderRoleSwatch, renderEvidenceSwatch } from '../shared/legend.mjs';
 import { availableNodeTextWidth, fittedNodeFontSize, minimumNodeTextWidth, nodeLabelLayout } from '../shared/text-fit.mjs';
 import { brandLabelFitWidth, brandMarkFor, brandMetadataFor, brandTopRailProblem, renderBrandMark } from '../shared/brand-marks.mjs';
 import { translateMessage as i18nText } from '../shared/i18n.mjs';
@@ -147,7 +150,7 @@ function validateDataflow() {
     if (brandRailProblem) problems.push(brandRailProblem);
     // sublabel and tag render as single unwrapped <text> elements; shrink-to-fit
     // handles the ordinary case, this rejects what it cannot rescue.
-    const availableTextW = availableNodeTextWidth(node.width);
+    const availableTextW = availableNodeTextWidth(shapeTextWidth(nodeShape(dataflow, node), node.width, node.height));
     for (const [field, value, minimum] of [
       ['Sublabel', node.sublabel, nodeTextFit.sublabelMinimum],
       ['Tag', node.tag, nodeTextFit.tagMinimum],
@@ -422,14 +425,21 @@ function renderNode(node) {
   const fill = componentFill[node.type] || 'c-external';
   const accent = componentText[node.type] || 't-muted';
   const hasSub = node.sublabel != null && node.sublabel !== '';
-  const labelFontSize = fittedNodeFontSize(node.label, brandLabelFitWidth(node, node.width), 10, 8);
-  const sublabelFontSize = fittedNodeFontSize(node.sublabel, node.width, nodeTextFit.sublabelPreferred, nodeTextFit.sublabelMinimum);
-  const tagFontSize = fittedNodeFontSize(node.tag, node.width, nodeTextFit.tagPreferred, nodeTextFit.tagMinimum);
+  const shape = nodeShape(dataflow, node);
+  const textWidth = shapeTextWidth(shape, node.width, node.height);
+  const labelFontSize = fittedNodeFontSize(node.label, brandLabelFitWidth(node, textWidth), 10, 8);
+  const sublabelFontSize = fittedNodeFontSize(node.sublabel, textWidth, nodeTextFit.sublabelPreferred, nodeTextFit.sublabelMinimum);
+  const tagFontSize = fittedNodeFontSize(node.tag, textWidth, nodeTextFit.tagPreferred, nodeTextFit.tagMinimum);
   const textRows = [{ text: node.label, font: labelFontSize, y: 21 }];
   if (hasSub) textRows.push({ text: node.sublabel, font: sublabelFontSize, y: 37 });
   if (node.tag) textRows.push({ text: node.tag, font: tagFontSize, y: node.height - 11 });
   const labelLayout = nodeLabelLayout({ width: node.width, height: node.height, rows: textRows,
     brand: Boolean(brandMarkFor(node)), source: Boolean(sourceEvidence?.nodes?.[node.id]?.length) });
+  // A shaped outline moves the sigil off the corner; a plain box keeps the
+  // label layout's placement.
+  const [shapeSigilX, shapeSigilY] = shapeSigilOffset(shape, node.width, node.height);
+  const sigilX = isShaped(shape) ? shapeSigilX : 6;
+  const sigilY = isShaped(shape) ? shapeSigilY : labelLayout.sigilY;
   const sub = hasSub
     ? `\n          <text data-detail="context" x="${node.cx}" y="${node.y + labelLayout.ys[1]}" class="t-muted" font-size="${sublabelFontSize}" text-anchor="middle">${esc(node.sublabel)}</text>`
     : '';
@@ -441,12 +451,11 @@ function renderNode(node) {
     ? `${String(node.stage + 1).padStart(2, '0')} / ${stage.label}`
     : i18nText(dataflow.meta.locale, 'node.context.dataflow');
   const brand = renderBrandMark(node, { x: node.x + node.width - 22, y: node.y + 6 });
-  const passport = { kind: node.type, sublabel: node.sublabel, tag: node.tag, context, ...brandMetadataFor(node) };
+  const passport = { kind: node.type, sublabel: node.sublabel, tag: node.tag, context, ...brandMetadataFor(node), ...rolePassport(dataflow, node) };
   return `        <g ${focusNodeAttrs(node.id, node.label, passport, dataflow.meta.locale)}>
           ${focusNodeTitle(node.label, passport)}
-          <rect x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" rx="6" class="c-mask"/>
-          <rect x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" rx="6" class="${fill}"${animateAttr(dataflow.meta, 'node', nodeSteps.get(node.id))} stroke-width="1.5"/>
-          ${renderSemanticSigil(node.type, { icon: node.icon, x: node.x + 6, y: node.y + labelLayout.sigilY, size: labelLayout.sigilSize })}${brand ? `\n          ${brand}` : ''}
+          ${renderNodeBody({ shape, x: node.x, y: node.y, width: node.width, height: node.height, fillClass: fill, animate: animateAttr(dataflow.meta, 'node', nodeSteps.get(node.id)) })}
+          ${renderSemanticSigil(node.type, { icon: node.icon, x: node.x + sigilX, y: node.y + sigilY, size: labelLayout.sigilSize, role: passport.role ? (dataflow.meta?.roles?.[node.role]?.sigil || node.role) : null })}${brand ? `\n          ${brand}` : ''}
           <text data-node-label=""${hasSub ? ' data-detail-anchor=""' : ''} x="${node.x + labelLayout.x}" y="${node.y + labelLayout.ys[0]}" class="t-primary" font-size="${labelFontSize}" font-weight="600" text-anchor="middle">${esc(node.label)}</text>${sub}${tag}
         </g>`;
 }
@@ -455,7 +464,7 @@ function renderFlowPath(flow, index) {
   const [cls, marker] = arrowClassMap[flow.variant || 'default'] || arrowClassMap.default;
   const routed = pathFor(flow);
   const strokeWidth = flow.width || (flow.variant === 'emphasis' ? 1.8 : 1.4);
-  return `        <path ${focusEdgeAttrs(flow.from, flow.to, flow.label, index, flow.id)} data-composition-points="${routePointsValue(routed.points)}"${authoredStraightRouteAttrs(flow, routed.points)} d="${routed.d}" class="${cls}"${animateAttr(dataflow.meta, 'edge', index)} stroke-width="${strokeWidth}" marker-end="url(#${marker})"/>`;
+  return `        <path ${focusEdgeAttrs(flow.from, flow.to, flow.label, index, flow.id, { evidence: flow.evidence })} data-composition-points="${routePointsValue(routed.points)}"${authoredStraightRouteAttrs(flow, routed.points)} d="${routed.d}" class="${cls}"${animateAttr(dataflow.meta, 'edge', index)} stroke-width="${strokeWidth}" marker-end="url(#${marker})"/>`;
 }
 
 function renderFlowLabel(flow, index) {
@@ -465,7 +474,7 @@ function renderFlowLabel(flow, index) {
   const classification = flow.classification
     ? `\n        <text data-detail="fine" x="${lx}" y="${ly + 11}" class="t-dim" font-size="7" text-anchor="middle">${esc(flow.classification)}</text>`
     : '';
-  return `        <g data-detail="context" ${focusEdgeAttrs(flow.from, flow.to, flow.label, index, flow.id)}>
+  return `        <g data-detail="context" ${focusEdgeAttrs(flow.from, flow.to, flow.label, index, flow.id, { evidence: flow.evidence })}>
           <rect x="${lx - labelW / 2}" y="${ly - 11}" width="${labelW}" height="${labelH}" rx="4" class="c-mask"/>
           <text x="${lx}" y="${ly}" class="${edgeLabelAccent(flow.variant)}" font-size="8" text-anchor="middle">${esc(flow.label)}</text>${classification}
         </g>`;
@@ -485,7 +494,11 @@ const LEGEND_CATALOG = [
 function renderLegend() {
   const presentKinds = new Set(asArray(dataflow.flows).map((flow) => flow.variant || 'default'));
   if ([...nodes.values()].some((node) => node.type === 'database')) presentKinds.add('database');
-  const entries = resolveLegend(dataflow.meta?.legend, LEGEND_CATALOG, presentKinds);
+  const entries = [
+    ...resolveLegend(dataflow.meta?.legend, LEGEND_CATALOG, presentKinds),
+    ...(dataflow.meta?.legend?.mode === 'hidden' ? [] : roleLegendEntries(dataflow, [...nodes.values()])),
+    ...evidenceLegendEntries(dataflow, asArray(dataflow.flows)),
+  ];
   return renderResolvedLegend({
     entries,
     locale: dataflow.meta.locale,
@@ -497,7 +510,11 @@ function renderLegend() {
       unfit: dataflow.meta?.legend === undefined ? 'hide' : 'error',
       diagramType: 'dataflow',
     },
-    renderSwatch: (entry) => entry.kind === 'database'
+    renderSwatch: (entry) => entry.evidence
+      ? renderEvidenceSwatch(entry)
+      : entry.role
+      ? renderRoleSwatch(entry)
+      : entry.kind === 'database'
       ? `<rect x="${entry.x}" y="${entry.baseline - 8}" width="14" height="9" rx="2" class="c-database" stroke-width="1"/>`
       : `<path d="M ${entry.x} ${entry.baseline - 3} L ${entry.x + 34} ${entry.baseline - 3}" class="${entry.className}" stroke-width="${entry.strokeWidth || 1.4}" marker-end="url(#${entry.marker})"/>`,
   });

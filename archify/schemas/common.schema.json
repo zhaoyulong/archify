@@ -69,7 +69,139 @@
       "maxItems": 2
     },
     "componentType": {
-      "enum": ["frontend", "backend", "database", "cloud", "security", "messagebus", "external"]
+      "enum": ["frontend", "backend", "database", "cloud", "security", "messagebus", "external", "control", "compute"]
+    },
+    "role": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "maxLength": 40
+    },
+    "nodeShape": {
+      "enum": ["rect", "cylinder", "drum", "pipe", "hexagon", "octagon", "pill", "subroutine", "table", "stack", "document", "shield", "parallelogram", "trapezoid"]
+    },
+    "customRoles": {
+      "type": "object",
+      "maxProperties": 40,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 40 },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tone", "label"],
+        "properties": {
+          "tone": { "$ref": "#/$defs/componentType" },
+          "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+          "sigil": { "$ref": "#/$defs/role" },
+          "shape": { "$ref": "#/$defs/nodeShape" }
+        }
+      }
+    },
+    "link": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048
+    },
+    "evidence": {
+      "enum": ["confirmed", "inferred", "unverified"]
+    },
+    "evidenceLevel": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 200 }
+      }
+    },
+    "evidenceLegend": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "note": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "levels": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "confirmed": { "$ref": "#/$defs/evidenceLevel" },
+            "inferred": { "$ref": "#/$defs/evidenceLevel" },
+            "unverified": { "$ref": "#/$defs/evidenceLevel" }
+          }
+        }
+      }
+    },
+    "details": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "value"],
+        "properties": {
+          "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+          "value": { "type": "string", "minLength": 1, "maxLength": 400 }
+        }
+      }
+    },
+    "scenarioId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "maxLength": 120
+    },
+    "scenarios": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1, "maxLength": 48 },
+        "itemLabel": { "type": "string", "minLength": 1, "maxLength": 24 },
+        "noDifferenceNote": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "default": { "$ref": "#/$defs/scenarioId" },
+        "groups": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label"],
+            "properties": {
+              "id": { "$ref": "#/$defs/scenarioId" },
+              "label": { "type": "string", "minLength": 1, "maxLength": 80 }
+            }
+          }
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 500,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label", "nodes"],
+            "properties": {
+              "id": { "$ref": "#/$defs/scenarioId" },
+              "label": { "type": "string", "minLength": 1, "maxLength": 80 },
+              "group": { "$ref": "#/$defs/scenarioId" },
+              "note": { "type": "string", "maxLength": 280 },
+              "nodes": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "$ref": "#/$defs/id" }
+              },
+              "connections": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/id" }
+              },
+              "annotations": {
+                "type": "object",
+                "propertyNames": { "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$" },
+                "additionalProperties": { "type": "string", "minLength": 1, "maxLength": 240 }
+              },
+              "compare": { "$ref": "#/$defs/scenarioId" },
+              "link": { "$ref": "#/$defs/link" }
+            }
+          }
+        }
+      }
     },
     "nodeIcon": {
       "description": "Decorative corner icon. Omit the icon field for the type default; none hides it. Does not change type, color, or legend grouping.",
