@@ -20,6 +20,7 @@ node recipes/graph-engine/import.mjs \
   --graphs graph_inflow.json graph_outflow.json \
   --datasources datasource.json \
   --context context.json \
+  --explain explain/ \
   --locale zh-CN \
   --out service.architecture.json
 
@@ -36,6 +37,7 @@ in each stage, and how many graphs a bundle names that no input file contains.
 | `--datasources FILE` | Datasource namespace. Without it no datasource is drawn. |
 | `--context FILE` | Callers, control plane and offline flows. See below. |
 | `--stages FILE` | Replace the stage rules and datasource role mapping. |
+| `--explain FILE...` | Output of the service's explain endpoint, one request per file; a directory stands for its `.json` files. The matched scenario takes the params the request ran with; a graph the exports lack becomes a scenario of its own. See [Explained requests](#explained-requests). |
 | `--bundle NAME` | Import only this bundle. Repeatable. |
 | `--expand-flows` | Draw every job of a flow instead of one box per flow. |
 | `--link-template URL` | Per-scenario link. `{bundle}`, `{graph}`, `{namespace}` are substituted. |
@@ -138,6 +140,53 @@ Two graphs of one bundle often run the same stages and stores. The importer
 annotates each stage with its operator counts, so a comparison still reports
 the stages whose counts differ.
 
+### Operator keys
+
+`operators` names, per operator type, the key templates its code builds. The
+importer joins them to the datasource through the params of every node of that
+type: `section` is the params object that configures the handler, searched up
+to three levels deep so that `block_host` and
+`extra_data.user_block_streaming_list` are both found, and `datasource_field`
+is the field in it that names the datasource. A template bound to a section
+counts only when the section is present in the node's params. A template read
+from the params (`from_params`, with `args` naming the format verbs) is rendered
+from that field. An entry with `store` names a store the datasources do not
+list; it is shown on the stage, not on a datasource.
+
+```json
+{ "operators": { "PrepareOp": { "file": "internal/op/prepare_op.go", "keys": [
+  { "template": "user_blocklist:{uid}", "source": "internal/op/prepare/user_block_host.go", "section": "block_host", "datasource_field": "datasource" },
+  { "template": "{params.key}", "from_params": "key", "args": ["UserId"], "section": "filter_template_list", "datasource_field": "datasource" },
+  { "template": "{bundle}-{userId}", "store": "impression sequence store", "basis": "by hand" }
+] } } }
+```
+
+A `key` string beside a datasource name in the params is a key too. Both kinds
+show on the datasource node (`Keys read online`, unless the context authored
+the node's details) and in the datasource's scenario annotation (`key:`), which
+then lists what that graph really reads.
+
+## Explained requests
+
+`--explain` takes the JSON the service's explain endpoint returns for one
+request: `request.bundle`, `resolved.graph_name`, `layers[]` with `applied`,
+and `graph.nodes[]` with `op`, the effective `params`, `inputs`, `outputs` and
+`overrides` (field → layer). A file whose `error` is set is reported and
+skipped; a second file for the same bundle and graph is reported as a duplicate
+and ignored.
+
+- A scenario the exports describe takes the explained params instead, so a
+  datasource an experiment switched moves with it, and the stage annotation
+  counts the overridden fields.
+- A graph the exports lack (a debug graph, a bundle that was not exported)
+  becomes a scenario built from the explain alone.
+- The scenario note says which request it was and which layers applied. The
+  "Scenarios resolved per request" card lists them with the downgrade rule and
+  the `graph_params` that matched no node.
+
+The report prints `explained`, `explainOnly`, `explainErrors` and
+`explainDuplicates`.
+
 ## Stage rules
 
 Operators are classified by the first matching rule. Observation operators
@@ -165,8 +214,9 @@ every graph runs the stages in that sequence.
   drawn as extra routes.
 - The spine joins consecutive stages. Graph-level skips, such as recall
   feeding mixing directly, are not drawn.
-- Parameters overridden at request time by an experiment platform are not in
-  the configuration and therefore not in the diagram.
+- Parameters overridden at request time by an experiment or degrade platform
+  are not in the configuration. They enter the diagram only through
+  `--explain`, for the requests that were explained.
 
 ### Datasource labels
 

@@ -17,11 +17,13 @@
 //   node recipes/graph-engine/import.mjs \
 //     --bundles bundle.json --graphs graph_a.json graph_b.json \
 //     [--datasources datasource.json] [--context context.json] [--stages stages.json] \
-//     [--bundle NAME ...] [--title TEXT] [--locale zh-CN] [--link-template URL] \
-//     --out service.architecture.json
+//     [--explain explain.json ...] [--bundle NAME ...] [--title TEXT] [--locale zh-CN] \
+//     [--link-template URL] --out service.architecture.json
 //
 // Input files are Config Center exports ({"states":[{"zone","full_spec":{"items":{...}}}]})
-// or plain JSON maps of name -> object. See recipes/graph-engine/README.md.
+// or plain JSON maps of name -> object. --explain takes the output of the
+// service's explain endpoint, one request each: the params a graph really ran
+// with. See recipes/graph-engine/README.md.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -29,8 +31,8 @@ import { textUnits } from '../../renderers/shared/utils.mjs';
 
 // ---------------------------------------------------------------- arguments
 function parseArgs(argv) {
-  const multi = new Set(['graphs', 'bundle']);
-  const args = { graphs: [], bundle: [] };
+  const multi = new Set(['graphs', 'bundle', 'explain']);
+  const args = { graphs: [], bundle: [], explain: [] };
   let key = null;
   for (const token of argv) {
     if (token.startsWith('--')) {
@@ -75,6 +77,63 @@ function loadNamespace(file, zone = 'global') {
     }
   }
   return { name, items };
+}
+
+// ------------------------------------------------------------------ explain
+// Output of the service's explain endpoint: the configuration one request
+// actually ran with, after experiment and degrade overrides, one file per
+// request. It is matched to a scenario by bundle and graph name and replaces
+// the graph's static params there. A graph no namespace export contains
+// becomes a scenario of its own. A directory stands for every .json in it.
+function loadExplains(inputs) {
+  const found = new Map();
+  const errors = [];
+  const duplicates = [];
+  const files = inputs.flatMap((input) => (fs.statSync(input).isDirectory()
+    ? fs.readdirSync(input).filter((name) => name.endsWith('.json')).sort().map((name) => path.join(input, name))
+    : [input]));
+  for (const file of files) {
+    const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const bundle = raw?.request?.bundle;
+    const graphName = raw?.resolved?.graph_name;
+    if (raw?.error || !bundle || !graphName || !Array.isArray(raw?.graph?.nodes)) {
+      errors.push(`${path.basename(file)}: ${raw?.error || 'no resolved graph'}`);
+      continue;
+    }
+    const key = `${bundle}\u0000${graphName}`;
+    if (found.has(key)) {
+      duplicates.push(`${bundle}/${graphName}`);
+      continue;
+    }
+    found.set(key, raw);
+  }
+  return { found, errors, duplicates };
+}
+
+// The explain output lists nodes with their effective params and the names of
+// their inputs and outputs. analyzeGraph wants the configuration shape.
+function explainDag(explain) {
+  const dag = {};
+  for (const node of explain.graph.nodes) {
+    if (!node || typeof node.op !== 'string') continue;
+    dag[node.name] = {
+      op: node.op,
+      params: node.params && typeof node.params === 'object' ? node.params : {},
+      inputs: Object.fromEntries((node.inputs || []).map((name) => [name, {}])),
+      outputs: Object.fromEntries((node.outputs || []).map((name) => [name, {}])),
+    };
+  }
+  return dag;
+}
+
+function explainSummary(explain) {
+  const nodes = explain.graph.nodes || [];
+  return {
+    overridden: nodes.reduce((sum, node) => sum + Object.keys(node.overrides || {}).length, 0),
+    ignored: nodes.filter((node) => node.ignored_override).length,
+    applied: (explain.layers || []).filter((layer) => layer.applied).map((layer) => layer.name),
+    unmatched: Array.isArray(explain.unmatched_graph_params) ? explain.unmatched_graph_params : [],
+  };
 }
 
 // ------------------------------------------------------------------- stages
@@ -129,11 +188,80 @@ function collectDatasources(value, known, found) {
   else if (typeof value === 'string' && known.has(value)) found.add(value);
 }
 
-function analyzeGraph(graph, stages, knownDatasources) {
+// The params object a handler reads: params[name] at any depth up to three,
+// so prepare's `block_host` and recall's `extra_data.user_block_streaming_list`
+// are both found.
+function findSection(value, name, depth = 3) {
+  if (depth < 0 || !value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const own = value[name];
+  if (own && typeof own === 'object' && !Array.isArray(own)) return own;
+  for (const child of Object.values(value)) {
+    const hit = findSection(child, name, depth - 1);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+// A Go format string taken from the params, its verbs replaced by the names
+// the source scan recorded for the call's arguments.
+function renderTemplate(format, names = []) {
+  let index = 0;
+  return format.replace(/%[sdvx]/g, () => `{${names[index++] ?? 'value'}}`);
+}
+
+// Keys a node reads, by datasource, from two origins: a `key` written in the
+// params next to the datasource name, and the templates the operator's code
+// builds (`operators` in the context, produced by a source scan). A code
+// template bound to a params section counts only when that section is present,
+// so a PrepareOp configured without block_host is not said to read blocklist
+// keys. Entries with a `store` belong to a store outside the datasources; they
+// are listed on the stage instead.
+function collectKeys(node, known, operators, found) {
+  const shape = (template) => template.replace(/%[sdvx]|\{[^}]*\}/g, '{}');
+  const record = (datasource, template, origin) => {
+    if (!found.has(datasource)) found.set(datasource, new Map());
+    const templates = found.get(datasource);
+    const same = [...templates.keys()].find((known) => shape(known) === shape(template));
+    if (!same) { templates.set(template, origin); return; }
+    // The config holds the raw format string; the code renders it with the
+    // argument names. Keep the named one.
+    if (/%[sdvx]/.test(same) && !/%[sdvx]/.test(template)) {
+      templates.delete(same);
+      templates.set(template, origin);
+    }
+  };
+  const visit = (value) => {
+    if (Array.isArray(value)) { value.forEach(visit); return; }
+    if (!value || typeof value !== 'object') return;
+    const named = Object.values(value).filter((entry) => typeof entry === 'string' && known.has(entry));
+    if (named.length && typeof value.key === 'string' && value.key) named.forEach((datasource) => record(datasource, value.key, 'config'));
+    Object.values(value).forEach(visit);
+  };
+  visit(node.params);
+  for (const entry of operators[node.op]?.keys || []) {
+    if (entry.store || typeof entry.template !== 'string') continue;
+    const scope = entry.section ? findSection(node.params, entry.section) : node.params;
+    if (!scope || typeof scope !== 'object') continue;
+    let template = entry.template;
+    if (entry.from_params) {
+      const own = scope[entry.from_params];
+      if (typeof own !== 'string' || !own) continue;
+      template = renderTemplate(own, entry.args);
+    }
+    const targets = new Set();
+    const bound = entry.datasource_field ? scope[entry.datasource_field] : null;
+    if (typeof bound === 'string' && known.has(bound)) targets.add(bound);
+    else collectDatasources(scope, known, targets);
+    targets.forEach((datasource) => record(datasource, template, 'code'));
+  }
+}
+
+function analyzeGraph(graph, stages, knownDatasources, operators = {}) {
   const dag = graph.dag && typeof graph.dag === 'object' ? graph.dag : graph;
   const nodeStage = new Map();
   const stageOps = new Map();          // stage -> Map<opType, count>
   const datasourceStages = new Map();  // datasource -> Map<stage, count>
+  const datasourceKeys = new Map();    // datasource -> Map<template, 'config' | 'code'>
   const producers = new Map();
   const consumers = new Map();
 
@@ -146,6 +274,7 @@ function analyzeGraph(graph, stages, knownDatasources) {
 
     const used = new Set();
     collectDatasources(node.params, knownDatasources, used);
+    collectKeys(node, knownDatasources, operators, datasourceKeys);
     for (const datasource of used) {
       if (!datasourceStages.has(datasource)) datasourceStages.set(datasource, new Map());
       const counts = datasourceStages.get(datasource);
@@ -173,7 +302,7 @@ function analyzeGraph(graph, stages, knownDatasources) {
       }
     }
   }
-  return { nodeCount: nodeStage.size, stageOps, datasourceStages, stageEdges };
+  return { nodeCount: nodeStage.size, nodeStage, stageOps, datasourceStages, datasourceKeys, stageEdges };
 }
 
 // "RecallOp×2" reads as "two kinds" to some readers. It counts nodes: this
@@ -191,7 +320,7 @@ function summarizeOps(ops, limit = 4, chinese = false) {
 // --------------------------------------------------------------------- main
 const args = parseArgs(process.argv.slice(2));
 if (args.help || !args.bundles || !args.graphs.length || !args.out) {
-  console.log('usage: import.mjs --bundles FILE --graphs FILE... [--datasources FILE] [--context FILE] [--stages FILE] [--bundle NAME...] [--expand-flows] [--title TEXT] [--locale en|zh-CN] [--link-template URL] --out FILE');
+  console.log('usage: import.mjs --bundles FILE --graphs FILE... [--datasources FILE] [--context FILE] [--stages FILE] [--explain FILE...] [--bundle NAME...] [--expand-flows] [--title TEXT] [--locale en|zh-CN] [--link-template URL] --out FILE');
   process.exit(args.help ? 0 : 1);
 }
 
@@ -203,6 +332,8 @@ const stageConfig = args.stages ? JSON.parse(fs.readFileSync(args.stages, 'utf8'
 const stages = compileStages(stageConfig.stages || DEFAULT_STAGES, stageConfig.priority || (stageConfig.stages ? null : MATCH_PRIORITY));
 const datasourceRoles = { ...DEFAULT_DATASOURCE_ROLES, ...(stageConfig.datasourceRoles || {}) };
 const context = args.context ? JSON.parse(fs.readFileSync(args.context, 'utf8')) : {};
+const operators = context.operators && typeof context.operators === 'object' ? context.operators : {};
+const explains = loadExplains(args.explain);
 
 const bundles = loadNamespace(args.bundles).items;
 const graphNamespaces = args.graphs.map((file) => loadNamespace(file));
@@ -243,10 +374,11 @@ for (const [bundleName, bundle] of bundles) {
         { graph: group?.holdout_graph_name, holdout: true },
       ].filter((variant) => typeof variant.graph === 'string' && variant.graph);
       for (const variant of variants) {
+        const key = `${bundleName}\u0000${variant.graph}`;
+        const explain = explains.found.get(key) || null;
         const graph = namespace?.items.get(variant.graph)
           || graphNamespaces.map((candidate) => candidate.items.get(variant.graph)).find(Boolean);
-        if (!graph) { missing.push(`${bundleName}/${variant.graph}`); continue; }
-        const key = `${bundleName}\u0000${variant.graph}`;
+        if (!graph && !explain) { missing.push(`${bundleName}/${variant.graph}`); continue; }
         if (!usages.has(key)) {
           usages.set(key, {
             bundle: bundleName,
@@ -255,7 +387,10 @@ for (const [bundleName, bundle] of bundles) {
             namespace: namespace?.name || prefix || '',
             expScene: bundle.exp_scene || null,
             users: [],
-            analysis: analyzeGraph(graph, stages, knownDatasources),
+            // The explained params are what the graph ran with; the export
+            // is what it would run with before any override.
+            analysis: analyzeGraph(explain ? explainDag(explain) : graph, stages, knownDatasources, operators),
+            explain,
             primary: null,
           });
         }
@@ -266,7 +401,27 @@ for (const [bundleName, bundle] of bundles) {
     }
   }
 }
-if (!usages.size) fail('no graph could be resolved; check --bundles, --graphs and --bundle');
+// A request that resolved to a graph no bundle group names (a debug graph, a
+// bundle the export lacks) still gets a scenario, built from the explain alone.
+for (const [key, explain] of explains.found) {
+  if (usages.has(key)) continue;
+  const { request, resolved } = explain;
+  if (selected.size && !selected.has(request.bundle)) continue;
+  usages.set(key, {
+    bundle: request.bundle,
+    graphName: resolved.graph_name,
+    holdout: Boolean(resolved.hit_holdout),
+    namespace: resolved.graph_namespace || '',
+    expScene: resolved.exp_scene || null,
+    users: [{ markets: [String(request.country || '').toLowerCase()].filter(Boolean), group: resolved.bundle_group || '', tag: resolved.request_tag || '' }],
+    analysis: analyzeGraph(explainDag(explain), stages, knownDatasources, operators),
+    explain,
+    explainOnly: true,
+    primary: null,
+  });
+}
+const explained = [...usages.values()].filter((usage) => usage.explain);
+if (!usages.size) fail('no graph could be resolved; check --bundles, --graphs, --explain and --bundle');
 
 // ------------------------------------------------------------ union model
 const stageIds = [...stages.list.map((stage) => stage.id), 'other'];
@@ -282,6 +437,14 @@ for (const usage of usages.values()) {
     if (!datasourceTotals.has(datasource)) datasourceTotals.set(datasource, new Map());
     const total = datasourceTotals.get(datasource);
     for (const [stage, count] of counts) total.set(stage, (total.get(stage) || 0) + count);
+  }
+}
+const datasourceKeyUnion = new Map();  // datasource -> template[] across graphs
+for (const usage of usages.values()) {
+  for (const [datasource, templates] of usage.analysis.datasourceKeys) {
+    if (!datasourceKeyUnion.has(datasource)) datasourceKeyUnion.set(datasource, []);
+    const list = datasourceKeyUnion.get(datasource);
+    for (const template of templates.keys()) if (!list.includes(template)) list.push(template);
   }
 }
 const primaryStage = new Map();
@@ -419,6 +582,7 @@ components.push({
     { label: L ? 'bundle 数' : 'Bundles', value: String(new Set([...usages.values()].map((usage) => usage.bundle)).size) },
     { label: L ? 'graph 数' : 'Graphs', value: String(usages.size) },
     { label: L ? 'graph 命名空间' : 'Graph namespaces', value: graphNamespaces.map((namespace) => namespace.name).join(', ') },
+    ...(args.explain.length ? [{ label: L ? '按请求解析的场景' : 'Scenarios resolved per request', value: `${explained.length} / ${usages.size}` }] : []),
   ]),
   pos: [X_STAGE, TOP_Y], size: [NODE_W, NODE_H],
 });
@@ -474,6 +638,9 @@ presentStages.forEach((stageId) => {
 
   const opTypes = new Set();
   for (const usage of usages.values()) for (const op of usage.analysis.stageOps.get(stageId)?.keys() || []) opTypes.add(op);
+  const outsideKeys = [...opTypes].sort().flatMap((op) => (operators[op]?.keys || [])
+    .filter((entry) => entry.store)
+    .map((entry) => `${op}: ${entry.template} → ${entry.store}`));
   components.push({
     id: id('stage', stageId), role: 'operator', label: stageLabel(stageId),
     sublabel: L ? `${opTypes.size} 种算子` : `${opTypes.size} operator types`,
@@ -481,6 +648,7 @@ presentStages.forEach((stageId) => {
       { label: L ? `算子类型（${opTypes.size} 种）` : `Operator types (${opTypes.size})`, value: [...opTypes].sort().join(', ') },
       { label: L ? '出现在' : 'Present in', value: `${[...usages.values()].filter((usage) => usage.analysis.stageOps.has(stageId)).length} / ${usages.size} graph` },
       { label: L ? '直接使用的数据源' : 'Datasources beside it', value: stack.join(', ') },
+      ...(outsideKeys.length ? [{ label: L ? '代码里读写的其他存储' : 'Other stores read in code', value: outsideKeys.join('\n') }] : []),
     ]),
     pos: [X_STAGE, cursorY], size: [NODE_W, NODE_H],
   });
@@ -507,6 +675,7 @@ presentStages.forEach((stageId) => {
         { label: L ? 'datasource 配置名' : 'Datasource', value: datasource },
         { label: L ? '类型' : 'Type', value: type },
         { label: L ? '使用它的阶段' : 'Used by stages', value: [...datasourceTotals.get(datasource).keys()].map(stageLabel).join(', ') },
+        { label: L ? '在线读取的 key' : 'Keys read online', value: (datasourceKeyUnion.get(datasource) || []).slice(0, 8).join('\n') },
       ]),
       pos: [x, y], size: [DS_W, height],
     });
@@ -704,14 +873,25 @@ for (const usage of [...usages.values()].sort((left, right) => (
   for (let index = 0; index + 1 < spine.length; index += 1) {
     if (activeSpine.has(spine[index]) && activeSpine.has(spine[index + 1])) active.add(id('spine', `${index}_${index + 1}`));
   }
+  // Overrides the explain reports, counted per stage through the node's stage.
+  const stageOverrides = new Map();
+  for (const node of usage.explain?.graph.nodes || []) {
+    const count = Object.keys(node.overrides || {}).length;
+    if (!count) continue;
+    const stageId = usage.analysis.nodeStage.get(node.name);
+    stageOverrides.set(stageId, (stageOverrides.get(stageId) || 0) + count);
+  }
   const annotations = {};
   for (const stageId of activeStages) {
-    annotations[id('stage', stageId)] = summarizeOps(usage.analysis.stageOps.get(stageId), 4, Boolean(L)).slice(0, 240);
+    const overridden = stageOverrides.get(stageId);
+    annotations[id('stage', stageId)] = `${summarizeOps(usage.analysis.stageOps.get(stageId), 4, Boolean(L))}${overridden ? (L ? ` · 覆盖 ${overridden} 项` : ` · ${overridden} overridden`) : ''}`.slice(0, 240);
   }
   for (const datasource of activeDatasources) {
     const stagesUsing = [...usage.analysis.datasourceStages.get(datasource).keys()];
     if (stagesUsing.includes(primaryStage.get(datasource))) active.add(id('use', `${primaryStage.get(datasource)}_${datasource}`));
-    annotations[id('ds', datasource)] = `${L ? '使用方' : 'used by'}: ${stagesUsing.map(stageLabel).join(' · ')}`.slice(0, 240);
+    const keys = [...(usage.analysis.datasourceKeys.get(datasource)?.keys() || [])];
+    const keyNote = keys.length ? ` · key: ${keys.slice(0, 3).join(' ')}${keys.length > 3 ? ` +${keys.length - 3}` : ''}` : '';
+    annotations[id('ds', datasource)] = `${L ? '使用方' : 'used by'}: ${stagesUsing.map(stageLabel).join(' · ')}${keyNote}`.slice(0, 240);
   }
   for (const unit of activeUnits) {
     for (const link of unit.links) {
@@ -721,9 +901,24 @@ for (const usage of [...usages.values()].sort((left, right) => (
 
   const who = usage.users.map((user) => `${(user.markets || []).join(',') || '*'}/${user.group}${user.tag ? `(${user.tag})` : ''}`);
   const uniqueWho = [...new Set(who)];
+  let resolvedNote = '';
+  if (usage.explain) {
+    const { request, resolved } = usage.explain;
+    const summary = explainSummary(usage.explain);
+    resolvedNote = [
+      L ? `按请求解析 ${String(request.country || '').toUpperCase()}` : `resolved per request ${String(request.country || '').toUpperCase()}`,
+      request.user_id ? `uid ${request.user_id}` : '',
+      resolved.ab_sigs?.length ? `AB ${resolved.ab_sigs.join(',')}` : '',
+      resolved.downgrade_rule ? (L ? `降级 ${resolved.downgrade_rule}` : `downgrade ${resolved.downgrade_rule}`) : '',
+      summary.applied.length ? (L ? `生效层 ${summary.applied.join('>')}` : `layers ${summary.applied.join('>')}`) : '',
+      summary.overridden ? (L ? `覆盖 ${summary.overridden} 项` : `${summary.overridden} overridden`) : '',
+      summary.ignored ? (L ? `被忽略的覆盖 ${summary.ignored} 处` : `${summary.ignored} overrides ignored`) : '',
+    ].filter(Boolean).join(' ');
+  }
   const note = [
     `${L ? '命名空间' : 'namespace'} ${usage.namespace}`,
     `${usage.analysis.nodeCount} ${L ? '个算子节点' : 'operator nodes'}`,
+    resolvedNote,
     usage.expScene ? `exp_scene ${usage.expScene}` : '',
     `${L ? '使用方' : 'used by'} ${uniqueWho.slice(0, 8).join(' ')}${uniqueWho.length > 8 ? ` +${uniqueWho.length - 8}` : ''}`,
   ].filter(Boolean).join(' · ').slice(0, 280);
@@ -780,6 +975,19 @@ const cards = [
       ...(missing.length ? [`${L ? '未找到的 graph' : 'unresolved graphs'}: ${[...new Set(missing)].slice(0, 6).join(', ')}${missing.length > 6 ? ' …' : ''}`] : []),
     ],
   },
+  ...(explained.length ? [{
+    dot: 'violet',
+    title: L ? '按请求解析的场景' : 'Scenarios resolved per request',
+    items: [
+      ...explained.slice(0, 8).map((usage) => {
+        const { request, resolved } = usage.explain;
+        const summary = explainSummary(usage.explain);
+        return `${scenarioId(usage)}: ${String(request.country || '').toUpperCase()}${resolved.ab_sigs?.length ? ` AB ${resolved.ab_sigs.join(',')}` : ''}${resolved.downgrade_rule ? ` ${L ? '降级' : 'downgrade'} ${resolved.downgrade_rule}` : ''} · ${L ? '生效层' : 'layers'} ${summary.applied.join(' > ') || '-'}${summary.overridden ? ` · ${L ? '覆盖' : 'overridden'} ${summary.overridden}` : ''}${summary.unmatched.length ? ` · ${L ? '对不上节点的 graph_params' : 'unmatched graph_params'} ${summary.unmatched.join(',')}` : ''}${usage.explainOnly ? (L ? ' · 仅来自请求' : ' · from the request only') : ''}`.slice(0, 300);
+      }),
+      ...(explained.length > 8 ? [`+${explained.length - 8}`] : []),
+      ...(explains.errors.length ? [`${L ? '未能解析' : 'not resolved'}: ${explains.errors.slice(0, 4).join('; ')}`.slice(0, 300)] : []),
+    ],
+  }] : []),
   ...(flows.length ? [{
     dot: 'amber',
     title: L ? '离线数据流' : 'Offline flows',
@@ -841,4 +1049,9 @@ console.log(JSON.stringify({
   jobs: expanded ? units.length : 0,
   jobsWithoutOnlineConsumer: expanded ? units.filter((unit) => !unit.links.length).length : 0,
   unresolvedGraphs: [...new Set(missing)].length,
+  explained: explained.length,
+  explainOnly: explained.filter((usage) => usage.explainOnly).length,
+  explainErrors: explains.errors,
+  explainDuplicates: explains.duplicates,
+  datasourcesWithKeys: [...datasourceKeyUnion.keys()].filter((datasource) => datasourcePosition.has(datasource)).length,
 }, null, 2));
