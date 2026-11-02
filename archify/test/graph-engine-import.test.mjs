@@ -290,3 +290,134 @@ test('details, evidence wording and scenario wording travel from context into th
   assert.match(html, /"evidenceTitle":"Lineage basis"/);
   assert.match(html, /"label":"Key matched","description":"Same key on both sides\."/);
 });
+
+// Keys: a `key` beside the datasource name in the params, and templates the
+// operator's code builds (context.operators, from a source scan), joined to
+// the datasource through the params section that names it.
+function keyedGraph() {
+  const base = graph();
+  base.dag.prepare.params = { block: { datasource: 'redis_block' }, probe: { datasource: 'redis_block', key: 'probe:{cid}' } };
+  base.dag.recall.params = { datasource: 'index_main', extra: { filter_list: { datasource: 'redis_block', key: 'filter:%d' } } };
+  return base;
+}
+const operators = {
+  PrepareOp: { file: 'internal/op/prepare_op.go', keys: [
+    { template: 'user_blocklist:{uid}', source: 'internal/op/prepare/user_block_host.go', section: 'block', datasource_field: 'datasource' },
+    { template: 'never:{uid}', source: 'internal/op/prepare/absent.go', section: 'absent', datasource_field: 'datasource' },
+  ] },
+  RecallOp: { file: 'internal/op/recall_op.go', keys: [
+    { template: '{params.key}', from_params: 'key', args: ['UserId'], source: 'internal/op/recall/extra_data/filter.go', section: 'filter_list', datasource_field: 'datasource' },
+  ] },
+  RankOp: { file: 'internal/op/rank_op.go', keys: [
+    { template: '{bundle}-{userId}', store: 'impression store outside the datasources', source: 'internal/op/rank_op.go', basis: 'by hand' },
+  ] },
+};
+
+function explainFor({ bundle, graphName, dag, overrides = {}, layers = ['bundle'], country = 'ID', extra = {} }) {
+  return {
+    request: { bundle, country, user_id: 42, request_id: 'r1', debug: false, ignore_ab: false },
+    resolved: {
+      graph_namespace: 'graph_main', graph_name: graphName, bundle_group: 'new', request_tag: 'new', node_params_key: `${bundle}_id`,
+      hit_holdout: false, user_profile: '', exp_scene: 'union', exp_scene_kind: 'union', ab_sigs: [7], union_ab_sigs: [], downgrade_rule: '',
+      degrade: { disable_local_downgrade: false, enable_dp_degrade: false, plan_ids: [], plan_names: [] },
+    },
+    layers: ['bundle', 'node_params', 'abtest', 'downgrade', 'degrade_platform', 'debug'].map((name) => ({ name, applied: layers.includes(name) })),
+    merged: {},
+    graph: {
+      namespace: 'graph_main', name: graphName,
+      nodes: Object.entries(dag).map(([name, node]) => ({
+        name, op: node.op, inputs: Object.keys(node.inputs || {}), outputs: Object.keys(node.outputs || {}), params: node.params,
+        ...(overrides[name] ? { overrides: overrides[name] } : {}),
+      })),
+    },
+    ...extra,
+  };
+}
+
+test('keys from params and from operator code are joined to the datasource they name', () => {
+  const graphs = write('keyed-graphs.json', namespace('graph_main_live_default', { home_new: keyedGraph(), home_old: graph(), home_holdout: graph(), detail_default: graph() }));
+  const context = JSON.parse(fs.readFileSync(files.context, 'utf8'));
+  context.operators = operators;
+  const contextFile = write('operators.json', context);
+  const out = path.join(tmp, 'keys.architecture.json');
+  const imported = spawnSync(process.execPath, [
+    importer, '--bundles', files.bundles, '--graphs', graphs, '--datasources', files.datasources, '--context', contextFile, '--out', out,
+  ], { cwd: skillRoot, encoding: 'utf8' });
+  assert.equal(imported.status, 0, imported.stderr);
+  assert.equal(JSON.parse(imported.stdout).datasourcesWithKeys, 1);
+  const diagram = JSON.parse(fs.readFileSync(out, 'utf8'));
+  const item = (id) => diagram.meta.scenarios.items.find((entry) => entry.id === id);
+  // The config key, the code template of the present section, and the
+  // template read from the params with its verb named; the absent section
+  // contributes nothing.
+  const note = item('home.home_new').annotations.ds_redis_block;
+  assert.match(note, /key: /);
+  assert.match(note, /probe:\{cid\}/);
+  assert.match(note, /user_blocklist:\{uid\}/);
+  assert.match(note, /filter:\{UserId\}/);
+  assert.doesNotMatch(note, /never:/);
+  // home_old configures the block section too, but no probe or filter.
+  assert.match(item('home.home_old').annotations.ds_redis_block, /key: user_blocklist:\{uid\}$/);
+  // Without authored details the datasource node lists the keys of every graph.
+  const store = diagram.components.find((component) => component.id === 'ds_redis_block');
+  const keysRow = store.details.find((row) => row.label === 'Keys read online');
+  assert.match(keysRow.value, /user_blocklist:\{uid\}/);
+  // A key against a store outside the datasources is listed on the stage.
+  const rank = diagram.components.find((component) => component.id === 'stage_rank');
+  const outside = rank.details.find((row) => row.label === 'Other stores read in code');
+  assert.match(outside.value, /RankOp: \{bundle\}-\{userId\} → impression store/);
+});
+
+test('--explain replaces a scenario\'s params with what the request ran with and adds scenarios the exports lack', () => {
+  const dir = path.join(tmp, 'explain');
+  fs.mkdirSync(dir, { recursive: true });
+  const overridden = graph();
+  overridden.dag.recall.params = { datasource: 'index_cold' };
+  fs.writeFileSync(path.join(dir, 'home_old.json'), JSON.stringify(explainFor({
+    bundle: 'home', graphName: 'home_old', dag: overridden.dag, layers: ['bundle', 'abtest'],
+    overrides: { recall: { datasource: 'abtest' } }, extra: { unmatched_graph_params: ['ghost'] },
+  })));
+  fs.writeFileSync(path.join(dir, 'home_debug.json'), JSON.stringify(explainFor({
+    bundle: 'home', graphName: 'home_debug', dag: graph({ dump: false }).dag, layers: ['bundle', 'debug'], country: 'vn',
+  })));
+  fs.writeFileSync(path.join(dir, 'broken.json'), JSON.stringify({ request: { bundle: 'home' }, resolved: {}, error: 'bundle not found' }));
+  const duplicate = write('explain-duplicate.json', explainFor({ bundle: 'home', graphName: 'home_old', dag: graph().dag }));
+
+  const out = path.join(tmp, 'explain.architecture.json');
+  const imported = spawnSync(process.execPath, [
+    importer, '--bundles', files.bundles, '--graphs', files.graphs, '--datasources', files.datasources, '--context', files.context,
+    '--explain', dir, duplicate, '--out', out,
+  ], { cwd: skillRoot, encoding: 'utf8' });
+  assert.equal(imported.status, 0, imported.stderr);
+  const report = JSON.parse(imported.stdout);
+  assert.equal(report.explained, 2);
+  assert.equal(report.explainOnly, 1);
+  assert.deepEqual(report.explainErrors, ['broken.json: bundle not found']);
+  assert.deepEqual(report.explainDuplicates, ['home/home_old']);
+  assert.equal(report.scenarios, 5);
+
+  const diagram = JSON.parse(fs.readFileSync(out, 'utf8'));
+  const item = (id) => diagram.meta.scenarios.items.find((entry) => entry.id === id);
+  // The explained params win over the export: home_old now reads index_cold.
+  assert.ok(item('home.home_old').nodes.includes('ds_index_cold'));
+  assert.ok(!item('home.home_old').nodes.includes('ds_index_main'));
+  assert.match(item('home.home_old').annotations.stage_recall, /1 overridden/);
+  assert.match(item('home.home_old').note, /resolved per request ID uid 42 AB 7 layers bundle>abtest 1 overridden/);
+  // The export still describes home_new, which no explain covers.
+  assert.ok(item('home.home_new').nodes.includes('ds_index_main'));
+  assert.doesNotMatch(item('home.home_new').note, /resolved per request/);
+  // A graph the exports lack becomes a scenario from the explain alone.
+  const debug = item('home.home_debug');
+  assert.ok(debug, 'scenario built from the explain');
+  assert.match(debug.note, /used by vn\/new\(new\)/);
+  assert.ok(!debug.nodes.includes('stage_observe'));
+  const card = diagram.cards.find((entry) => entry.title === 'Scenarios resolved per request');
+  assert.match(card.items.join('\n'), /home\.home_old: ID AB 7 · layers bundle > abtest · overridden 1 · unmatched graph_params ghost/);
+  assert.match(card.items.join('\n'), /home\.home_debug: VN .* from the request only/);
+  assert.match(card.items.join('\n'), /not resolved: broken\.json/);
+  const engine = diagram.components.find((component) => component.role === 'engine');
+  assert.match(engine.details.find((row) => row.label === 'Scenarios resolved per request').value, /2 \/ 5/);
+
+  const rendered = spawnSync(process.execPath, [cli, 'render', 'architecture', out, path.join(tmp, 'explain.html')], { cwd: skillRoot, encoding: 'utf8' });
+  assert.equal(rendered.status, 0, `${rendered.stdout}\n${rendered.stderr}`);
+});

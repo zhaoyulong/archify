@@ -250,10 +250,15 @@ async function runControlledWindowsPathE2E() {
       encoding: 'utf8',
     });
     requireSuccess('repository revision discovery', revision);
+    const origin = spawnSync('git', ['-C', repoRoot, 'remote', 'get-url', 'origin'], {
+      encoding: 'utf8',
+    });
+    requireSuccess('repository origin discovery', origin);
     const evidenceDiagram = JSON.parse(fs.readFileSync(architectureInput, 'utf8'));
     evidenceDiagram.meta.repository = {
-      url: 'https://github.com/tt-a1i/archify',
+      url: origin.stdout.trim(),
       revision: revision.stdout.trim(),
+      link_mode: 'local-only',
     };
     evidenceDiagram.components[0].sources = [{
       path: 'archify/bin/archify.mjs',
