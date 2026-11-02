@@ -168,7 +168,7 @@ jobs:
         with:
           node-version: 22
       - name: Public notifier manifest must reference an existing stable Release
-        if: needs.scope.outputs.scope == 'full'
+        if: needs.scope.outputs.scope == 'full' && github.repository == 'tt-a1i/archify'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
